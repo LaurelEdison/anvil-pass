@@ -40,13 +40,13 @@ pub fn create_vault(
     master_password: &str,
     path: PathBuf,
 ) -> Result<Vault, DatabaseProcessingError> {
-    let mut file = File::create(path.clone())?;
+    let mut file = File::create(path.with_extension("kdbx").clone())?;
     let db = Database::new();
     db.save(&mut file, DatabaseKey::new().with_password(master_password))
         .map_err(DatabaseProcessingError::Save)?;
     let vault = Vault {
         database: db,
-        path: path,
+        path: path.with_extension("kdbx"),
         dirty: false,
     };
 
