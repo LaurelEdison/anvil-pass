@@ -1,19 +1,73 @@
-use std::vec;
+use std::{process::Command, vec};
 
 use keepass::db::{Entry, EntryId, EntryRef, Group, GroupId};
 use regex::Regex;
 
 use crate::vault::{DatabaseProcessingError, Vault};
 
-pub struct SearchQuery {
+impl Vault {
+    pub fn search_entries(
+        &self,
+        filter: &SearchFilter,
+        engine: &impl SearchEngine,
+    ) -> Vec<SearchResult<EntryId>> {
+        let mut results = Vec::new();
+
+        for entry in self.database.iter_all_entries() {
+            let mut best_score = None;
+
+            if let Some(query) = &filter.title {
+                if let Some(title) = entry.get_title() {
+                    best_score = max_score(best_score, engine.score(query, title));
+                }
+            }
+
+            if let Some(query) = &filter.title {
+                if let Some(title) = entry.get_title() {
+                    best_score = max_score(best_score, engine.score(query, title));
+                }
+            }
+
+            if let Some(query) = &filter.title {
+                if let Some(title) = entry.get_title() {
+                    best_score = max_score(best_score, engine.score(query, title));
+                }
+            }
+
+            if let Some(score) = best_score {
+                results.push(SearchResult {
+                    id: entry.id(),
+                    score,
+                });
+            }
+        }
+
+        results
+    }
+}
+fn max_score(current: Option<i32>, new: Option<i32>) -> Option<i32> {
+    match (current, new) {
+        (Some(a), Some(b)) => Some(a.max(b)),
+        (None, Some(b)) => Some(b),
+        (Some(a), None) => Some(a),
+        (None, None) => None,
+    }
+}
+enum SearchMode {
+    Simple,
+    Regex,
+    Fuzzy,
+}
+
+pub struct SearchFilter {
     pub title: Option<String>,
     pub username: Option<String>,
     pub url: Option<String>,
     pub group: Option<GroupId>,
 }
-impl SearchQuery {
+impl SearchFilter {
     pub fn new() -> Self {
-        SearchQuery {
+        SearchFilter {
             title: None,
             username: None,
             url: None,
@@ -39,150 +93,44 @@ impl SearchQuery {
 }
 
 pub trait SearchEngine {
-    fn search(&self, vault: &Vault, query: &SearchQuery) -> Vec<SearchResult>;
+    fn score(&self, p_query: &str, p_candidate: &str) -> Option<i32>;
 }
 
-pub struct SearchResult {
-    pub entry_id: EntryId,
+pub struct SearchResult<Id> {
+    pub id: Id,
     pub score: i32,
 }
 
 pub struct SimpleSearch;
-pub struct FuzzySearch;
+pub struct FuzzySearch {
+    config: FuzzyScoringConfig,
+}
 pub struct RegexSearch;
 
 impl SearchEngine for SimpleSearch {
-    fn search(&self, vault: &Vault, query: &SearchQuery) -> Vec<SearchResult> {
-        let mut results = Vec::new();
-        for entry in vault.database.iter_all_entries() {
-            if matches_query(&entry, query) {
-                results.push(SearchResult {
-                    entry_id: entry.id(),
-                    score: 1,
-                });
-            }
+    fn score(&self, p_query: &str, p_candidate: &str) -> Option<i32> {
+        let query = p_query.to_lowercase();
+        let candidate = p_candidate.to_lowercase();
+        if candidate.contains(query.as_str()) {
+            return Some(i32::MAX);
         }
-        results
-    }
-}
-fn matches_query(entry: &EntryRef, query: &SearchQuery) -> bool {
-    let entry_title = entry
-        .get_title()
-        .unwrap_or_default()
-        .to_string()
-        .to_lowercase();
-    let entry_username = entry
-        .get_username()
-        .unwrap_or_default()
-        .to_string()
-        .to_lowercase();
-    let entry_url = entry
-        .get_url()
-        .unwrap_or_default()
-        .to_string()
-        .to_lowercase();
-    if let Some(ref title) = query.title {
-        if !entry_title.contains(title) {
-            return false;
-        }
-    }
-    if let Some(ref username) = query.username {
-        if !entry_username.contains(username) {
-            return false;
-        }
-    }
-    if let Some(ref url) = query.url {
-        if !entry_url.contains(url) {
-            return false;
-        }
-    }
-    true
-}
-
-struct QueryRegex {
-    title: Option<Regex>,
-    username: Option<Regex>,
-    url: Option<Regex>,
-}
-
-impl QueryRegex {
-    fn new(query: &SearchQuery) -> Result<QueryRegex, DatabaseProcessingError> {
-        let title_regex = query.title.as_ref().map(|p| Regex::new(p));
-        let username_regex = query.username.as_ref().map(|p| Regex::new(p));
-        let url_regex = query.url.as_ref().map(|p| Regex::new(p));
-
-        if title_regex.as_ref().map_or(false, |r| r.is_err())
-            || username_regex.as_ref().map_or(false, |r| r.is_err())
-            || url_regex.as_ref().map_or(false, |r| r.is_err())
-        {
-            return Err(DatabaseProcessingError::InvalidRegex);
-        }
-
-        let title_regex = title_regex.and_then(Result::ok);
-        let username_regex = username_regex.and_then(Result::ok);
-        let url_regex = url_regex.and_then(Result::ok);
-
-        Ok(QueryRegex {
-            title: title_regex,
-            username: username_regex,
-            url: url_regex,
-        })
+        return None;
     }
 }
 
 impl SearchEngine for RegexSearch {
-    fn search(&self, vault: &Vault, query: &SearchQuery) -> Vec<SearchResult> {
-        let query_regex = match QueryRegex::new(query) {
+    fn score(&self, p_query: &str, p_candidate: &str) -> Option<i32> {
+        let query_regex = match Regex::new(p_query) {
             Ok(regex) => regex,
-            Err(_) => return Vec::new(),
+            Err(_) => return None,
         };
 
-        let mut results = Vec::new();
-        for entry in vault.database.iter_all_entries() {
-            if matches_regex(&entry, &query_regex) {
-                results.push(SearchResult {
-                    entry_id: entry.id(),
-                    score: 1,
-                });
-            }
-        }
-        results
-    }
-}
-
-fn matches_regex(entry: &EntryRef, query_regex: &QueryRegex) -> bool {
-    let entry_title = entry
-        .get_title()
-        .unwrap_or_default()
-        .to_string()
-        .to_lowercase();
-    let entry_username = entry
-        .get_username()
-        .unwrap_or_default()
-        .to_string()
-        .to_lowercase();
-    let entry_url = entry
-        .get_url()
-        .unwrap_or_default()
-        .to_string()
-        .to_lowercase();
-
-    if let Some(ref regex) = query_regex.title {
-        if !regex.is_match(entry_title.as_str()) {
-            return false;
+        if query_regex.is_match(p_candidate) {
+            Some(i32::MAX)
+        } else {
+            None
         }
     }
-    if let Some(ref regex) = query_regex.username {
-        if !regex.is_match(&entry_username.as_str()) {
-            return false;
-        }
-    }
-    if let Some(ref regex) = query_regex.url {
-        if regex.is_match(&entry_url.as_str()) {
-            return false;
-        }
-    }
-    true
 }
 
 pub struct FuzzyScoringConfig {
@@ -193,9 +141,11 @@ pub struct FuzzyScoringConfig {
     leading_letter_penalty: i32,
     max_leading_letter_penalty: i32,
     unmatched_letter_penalty: i32,
+    recursion_limit: usize,
+    max_matches: usize,
 }
 
-impl FuzzyScoringConfig {
+impl Default for FuzzyScoringConfig {
     fn default() -> Self {
         Self {
             sequential_bonus: 15,
@@ -205,15 +155,176 @@ impl FuzzyScoringConfig {
             leading_letter_penalty: -5,
             max_leading_letter_penalty: -15,
             unmatched_letter_penalty: -1,
+            max_matches: 256,
+            recursion_limit: 10,
         }
     }
 }
 
-// Do later
 impl SearchEngine for FuzzySearch {
-    // TODO
-    fn search(&self, vault: &Vault, query: &SearchQuery) -> Vec<SearchResult> {
-        let mut results = Vec::new();
-        results
+    //TODO
+    fn score(&self, p_query: &str, p_candidate: &str) -> Option<i32> {
+        let pattern_chars: Vec<char> = p_query.chars().collect();
+        let text_chars: Vec<char> = p_candidate.chars().collect();
+        let mut matches = Vec::with_capacity(self.config.max_matches);
+
+        let (matched, score) =
+            self.fuzzy_match_recursive(&pattern_chars, &text_chars, 0, 0, &[], &mut matches, 0, 0);
+
+        if matched {
+            return Some(score);
+        }
+        None
+    }
+}
+
+impl FuzzySearch {
+    pub fn new() -> Self {
+        Self {
+            config: FuzzyScoringConfig::default(),
+        }
+    }
+    fn fuzzy_match_recursive(
+        &self,
+        pattern: &[char],
+        text: &[char],
+        pattern_idx: usize,
+        text_idx: usize,
+        src_matches: &[usize],
+        matches: &mut Vec<usize>,
+        next_match: usize,
+        recursion_count: usize,
+    ) -> (bool, i32) {
+        // Return if recursion limit is reached
+        if recursion_count >= self.config.recursion_limit {
+            return (false, 0);
+        }
+
+        // Return if we reached ends of strings
+        if pattern_idx == pattern.len() || text_idx == text.len() {
+            return (false, 0);
+        }
+
+        let mut best_recursive_match = false;
+        let mut best_recursive_matches = Vec::new();
+        let mut best_recursive_score = 0;
+
+        let mut first_match = true;
+        let mut pattern_cur = pattern_idx;
+        let mut text_cur = text_idx;
+        let mut next_match = next_match;
+        let mut matches_clone = Vec::new();
+
+        while pattern_cur < pattern.len() && text_cur < text.len() {
+            let pattern_char = pattern[pattern_cur].to_ascii_lowercase();
+            let text_char = text[text_cur].to_ascii_lowercase();
+
+            if pattern_char == text_char {
+                if next_match >= self.config.max_matches {
+                    return (false, 0);
+                }
+
+                if first_match && !src_matches.is_empty() {
+                    matches_clone = src_matches.to_vec();
+                    first_match = false;
+                }
+
+                // Recursive call
+                let mut recursive_matches = Vec::new();
+                let (matched, recursive_score) = self.fuzzy_match_recursive(
+                    pattern,
+                    text,
+                    pattern_cur,
+                    text_cur + 1,
+                    &matches_clone,
+                    &mut recursive_matches,
+                    next_match,
+                    recursion_count + 1,
+                );
+
+                if matched {
+                    if !best_recursive_match || recursive_score > best_recursive_score {
+                        best_recursive_matches = recursive_matches;
+                        best_recursive_score = recursive_score;
+                    }
+                    best_recursive_match = true;
+                }
+
+                // Store the match
+                if next_match < matches_clone.len() {
+                    matches_clone[next_match] = text_cur;
+                } else {
+                    matches_clone.push(text_cur);
+                }
+                next_match += 1;
+                pattern_cur += 1;
+            }
+            text_cur += 1;
+        }
+
+        let matched = pattern_cur == pattern.len();
+
+        if matched {
+            let score = self.calculate_score(text, &matches_clone, next_match);
+
+            // Return best result
+            if best_recursive_match && best_recursive_score > score {
+                matches.clear();
+                matches.extend(&best_recursive_matches);
+                return (true, best_recursive_score);
+            }
+
+            matches.clear();
+            matches.extend(&matches_clone);
+            return (true, score);
+        }
+
+        (false, 0)
+    }
+
+    fn calculate_score(&self, text: &[char], matches: &[usize], match_count: usize) -> i32 {
+        let mut score = 100;
+
+        // Apply leading letter penalty
+        let first_match_pos = matches.first().copied().unwrap_or(0) as i32;
+        let penalty = (self.config.leading_letter_penalty * first_match_pos)
+            .max(self.config.max_leading_letter_penalty);
+        score += penalty;
+
+        // Apply unmatched penalty
+        let unmatched = (text.len() - match_count) as i32;
+        score += self.config.unmatched_letter_penalty * unmatched;
+
+        // Apply ordering bonuses
+        for i in 0..match_count {
+            let curr_idx = matches[i];
+
+            if i > 0 {
+                let prev_idx = matches[i - 1];
+                if curr_idx == prev_idx + 1 {
+                    score += self.config.sequential_bonus;
+                }
+            }
+
+            // Check for bonuses based on neighbor character value
+            if curr_idx > 0 {
+                let neighbor = text[curr_idx - 1];
+                let curr = text[curr_idx];
+
+                // Camel case bonus
+                if neighbor.is_ascii_lowercase() && curr.is_ascii_uppercase() {
+                    score += self.config.camel_bonus;
+                }
+
+                // Separator bonus
+                if neighbor == '_' || neighbor == ' ' {
+                    score += self.config.separator_bonus;
+                }
+            } else {
+                // First letter bonus
+                score += self.config.first_letter_bonus;
+            }
+        }
+        score
     }
 }
