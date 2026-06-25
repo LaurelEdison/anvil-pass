@@ -51,6 +51,8 @@ pub enum DatabaseProcessingError {
     DirtyDatabase,
     #[error("vault file not found")]
     VaultFileMissing,
+    #[error("invalid regex")]
+    InvalidRegex,
 }
 
 #[derive(Debug)]

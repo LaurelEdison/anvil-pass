@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 keepass = {version = "0.13.10", features = ["save_kdbx4"] }
+regex = "1.12.4"
 tempfile = "3.27.0"
 thiserror = "2.0.18"
 uuid = "1.23.3"
