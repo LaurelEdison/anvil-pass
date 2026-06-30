@@ -3,6 +3,7 @@ pub mod database;
 pub mod entries;
 pub mod groups;
 pub mod search;
+pub mod traversal;
 
 use std::path::PathBuf;
 
@@ -20,6 +21,8 @@ pub enum DatabaseProcessingError {
 
     #[error("failed to find entry with title: {0}")]
     FailedToFindEntryByTitle(String),
+    #[error("Failed to get title from entry {0}")]
+    FailedToGetTitleFromEntry(Uuid),
 
     #[error("failed to move entry with id{src_id} to group with id{dst_id}: error: {err}")]
     FailedToMoveEntry {
@@ -37,6 +40,8 @@ pub enum DatabaseProcessingError {
 
     #[error("failed to find group with id: {0}")]
     FailedToFindGroup(Uuid),
+    #[error("failed to find entry with name: {0}")]
+    FailedToFindGroupByName(String),
 
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
