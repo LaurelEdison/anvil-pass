@@ -1,0 +1,6 @@
+
+[workspace]
+members = [
+    "anvil-core",
+    "anvil-cli",
+]
