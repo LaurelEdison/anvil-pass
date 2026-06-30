@@ -1,17 +1,17 @@
-// tests/backup_tests.rs
-mod common;
+use std::fs;
 
 use anvil_core::{
-    self,
+    fields,
     vault::{
         DatabaseProcessingError,
         database::{create_vault, open_vault},
         entries::NewEntry,
     },
 };
-use keepass::db::fields;
-use std::fs;
 use tempfile::tempdir;
+
+// tests/backup_tests.rs
+mod common;
 
 #[test]
 fn test_create_backup() {
@@ -217,7 +217,7 @@ fn test_backup_read_only_vault() {
     // Make vault read-only
     #[cfg(unix)]
     {
-        use std::os::unix::fs::PermissionsExt;
+        use std::{fs, os::unix::fs::PermissionsExt};
         let perm = fs::Permissions::from_mode(0o444);
         fs::set_permissions(&vault_path, perm).unwrap();
     }
