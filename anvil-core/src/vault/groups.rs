@@ -45,6 +45,15 @@ impl NewGroup {
 }
 
 impl Vault {
+    pub fn get_group_by_name(&self, p_name: &str) -> Result<GroupRef, DatabaseProcessingError> {
+        self.database
+            .iter_all_groups()
+            .find(|e| e.name == p_name)
+            .ok_or(DatabaseProcessingError::FailedToFindGroupByName(
+                String::from(p_name),
+            ))
+            .map(|e| e.clone())
+    }
     pub fn list_groups<'a>(&'a self) -> Vec<GroupRef<'a>> {
         self.database.iter_all_groups().collect()
     }
