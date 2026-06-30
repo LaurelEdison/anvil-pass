@@ -1,9 +1,13 @@
-use keepass::db::{Entry, EntryId, EntryMut, EntryRef, GroupId, fields};
+use keepass::{
+    Database,
+    db::{Entry, EntryId, EntryMut, EntryRef, GroupId, fields},
+};
 use uuid::Uuid;
 
 use crate::vault::{
     DatabaseProcessingError::{self, FailedToFindEntry, FailedToFindGroup, FailedToMoveEntry},
     Vault,
+    search::SearchMode::Exact,
 };
 
 #[derive(Debug, Clone)]
@@ -25,6 +29,43 @@ pub struct UpdateEntry {
     pub url: Option<String>,
     pub notes: Option<String>,
     pub totp: Option<String>,
+}
+
+impl UpdateEntry {
+    pub fn new() -> Self {
+        Self {
+            title: None,
+            username: None,
+            password: None,
+            url: None,
+            notes: None,
+            totp: None,
+        }
+    }
+    pub fn with_password(mut self, password: impl Into<String>) -> Self {
+        self.password = Some(password.into());
+        self
+    }
+    pub fn with_title(mut self, title: impl Into<String>) -> Self {
+        self.title = Some(title.into());
+        self
+    }
+    pub fn with_username(mut self, username: impl Into<String>) -> Self {
+        self.username = Some(username.into());
+        self
+    }
+    pub fn with_url(mut self, url: impl Into<String>) -> Self {
+        self.url = Some(url.into());
+        self
+    }
+    pub fn with_notes(mut self, notes: impl Into<String>) -> Self {
+        self.notes = Some(notes.into());
+        self
+    }
+    pub fn with_totp(mut self, totp: impl Into<String>) -> Self {
+        self.totp = Some(totp.into());
+        self
+    }
 }
 
 impl NewEntry {
@@ -178,5 +219,25 @@ impl Vault {
             .group(group_id)
             .map(|g| g.entries().map(|e| e.clone()).collect())
             .unwrap_or_default()
+    }
+    pub fn search_entry_exact(&self, p_title: &str, group_id: Option<Uuid>) -> Option<Entry> {
+        match group_id {
+            Some(s) => {
+                let group = self.database.group(GroupId::from_uuid(s)).unwrap();
+                for entry in group.entries() {
+                    if Vault::score(Exact, p_title, entry.get_title().get_or_insert("")).is_some() {
+                        return Some(entry.clone());
+                    }
+                }
+            }
+            None => {
+                for entry in self.database.iter_all_entries() {
+                    if Vault::score(Exact, p_title, entry.get_title().get_or_insert("")).is_some() {
+                        return Some(entry.clone());
+                    }
+                }
+            }
+        }
+        None
     }
 }
