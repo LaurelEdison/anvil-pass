@@ -15,7 +15,11 @@ impl Default for Charset {
             numbers: "1234567890".chars().collect(),
             lowercase_letters: "abcdefghijklmnopqrstuvwxyz".chars().collect(),
             uppercase_letters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect(),
-            symbols: "!@#$%^&*".chars().collect(),
+
+            // Chosen for maximum website compatibility.
+            // Excludes symbols that are commonly rejected
+            // by password policies (e.g. spaces and brackets).
+            symbols: "!@#$%^&*_-+=,.?".chars().collect(),
             similar_chars: "il1Lo0O".chars().collect(),
         }
     }
