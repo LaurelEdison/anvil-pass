@@ -1,10 +1,10 @@
-use keepass::db::{Entry, EntryId, EntryMut, EntryRef, GroupId, fields};
+use keepass::db::{Entry, EntryId, EntryMut, GroupId, fields};
 use uuid::Uuid;
 
 use crate::vault::{
     DatabaseProcessingError::{self, FailedToFindEntry, FailedToFindGroup, FailedToMoveEntry},
     Vault,
-    search::SearchMode::Exact,
+    models::{EntryData, entry_ref_collection_to_entry_data_collection, entry_ref_to_entry_data},
 };
 
 #[derive(Debug, Clone)]
@@ -104,8 +104,9 @@ impl NewEntry {
 }
 
 impl Vault {
-    pub fn list_entries<'a>(&'a self) -> Vec<EntryRef<'a>> {
-        self.database.iter_all_entries().collect()
+    pub fn list_entries<'a>(&'a self) -> Vec<EntryData> {
+        let entries = self.database.iter_all_entries().collect();
+        entry_ref_collection_to_entry_data_collection(entries)
     }
     pub fn move_entry(
         &mut self,
@@ -123,15 +124,6 @@ impl Vault {
             })?;
         self.dirty = true;
         Ok(())
-    }
-    pub fn get_entry_by_title(&self, p_title: &str) -> Result<Entry, DatabaseProcessingError> {
-        self.database
-            .iter_all_entries()
-            .find(|e| e.get(fields::TITLE) == Some(p_title))
-            .ok_or(DatabaseProcessingError::FailedToFindEntryByTitle(
-                String::from(p_title),
-            ))
-            .map(|e| e.clone())
     }
 
     pub fn add_entry(&mut self, new_entry: NewEntry) -> Result<Uuid, DatabaseProcessingError> {
@@ -160,11 +152,12 @@ impl Vault {
         let id = entry.id().uuid();
         Ok(id)
     }
-    pub fn get_entry(&self, entry_id: Uuid) -> Result<Entry, DatabaseProcessingError> {
-        self.database
+    pub fn get_entry(&self, entry_id: Uuid) -> Result<EntryData, DatabaseProcessingError> {
+        let entry = self
+            .database
             .entry(EntryId::from_uuid(entry_id))
-            .ok_or(DatabaseProcessingError::FailedToFindEntry(entry_id))
-            .map(|e| e.clone())
+            .ok_or(DatabaseProcessingError::FailedToFindEntry(entry_id))?;
+        Ok(entry_ref_to_entry_data(entry))
     }
     pub fn get_entry_mut<'a>(
         &'a mut self,
@@ -216,25 +209,5 @@ impl Vault {
             .group(group_id)
             .map(|g| g.entries().map(|e| e.clone()).collect())
             .unwrap_or_default()
-    }
-    pub fn search_entry_exact(&self, p_title: &str, group_id: Option<Uuid>) -> Option<Entry> {
-        match group_id {
-            Some(s) => {
-                let group = self.database.group(GroupId::from_uuid(s)).unwrap();
-                for entry in group.entries() {
-                    if Vault::score(Exact, p_title, entry.get_title().get_or_insert("")).is_some() {
-                        return Some(entry.clone());
-                    }
-                }
-            }
-            None => {
-                for entry in self.database.iter_all_entries() {
-                    if Vault::score(Exact, p_title, entry.get_title().get_or_insert("")).is_some() {
-                        return Some(entry.clone());
-                    }
-                }
-            }
-        }
-        None
     }
 }

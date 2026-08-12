@@ -2,8 +2,8 @@ pub mod backup;
 pub mod database;
 pub mod entries;
 pub mod groups;
+pub mod models;
 pub mod search;
-pub mod traversal;
 
 use std::path::PathBuf;
 

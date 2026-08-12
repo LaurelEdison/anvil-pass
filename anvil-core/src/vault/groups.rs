@@ -1,9 +1,10 @@
-use keepass::db::{GroupId, GroupMut, GroupRef};
+use keepass::db::{GroupId, GroupMut};
 use uuid::Uuid;
 
 use crate::vault::{
     DatabaseProcessingError::{self, FailedToFindGroup, FailedToMoveGroup},
     Vault,
+    models::{GroupData, group_ref_collection_to_group_data_collection, group_ref_to_group_data},
 };
 
 #[derive(Debug, Clone)]
@@ -45,17 +46,9 @@ impl NewGroup {
 }
 
 impl Vault {
-    pub fn get_group_by_name(&self, p_name: &str) -> Result<GroupRef<'_>, DatabaseProcessingError> {
-        self.database
-            .iter_all_groups()
-            .find(|e| e.name == p_name)
-            .ok_or(DatabaseProcessingError::FailedToFindGroupByName(
-                String::from(p_name),
-            ))
-            .map(|e| e.clone())
-    }
-    pub fn list_groups<'a>(&'a self) -> Vec<GroupRef<'a>> {
-        self.database.iter_all_groups().collect()
+    pub fn list_groups<'a>(&'a self) -> Vec<GroupData> {
+        let groups = self.database.iter_all_groups().collect();
+        group_ref_collection_to_group_data_collection(groups)
     }
     pub fn delete_group(&mut self, group_id: Uuid) -> Result<(), DatabaseProcessingError> {
         self.database
@@ -124,13 +117,12 @@ impl Vault {
         Ok(group.id().uuid())
     }
 
-    pub fn get_group<'a>(
-        &'a self,
-        group_id: Uuid,
-    ) -> Result<GroupRef<'a>, DatabaseProcessingError> {
-        self.database
+    pub fn get_group<'a>(&'a self, group_id: Uuid) -> Result<GroupData, DatabaseProcessingError> {
+        let group = self
+            .database
             .group(GroupId::from_uuid(group_id))
-            .ok_or(DatabaseProcessingError::FailedToFindGroup(group_id))
+            .ok_or(DatabaseProcessingError::FailedToFindGroup(group_id))?;
+        Ok(group_ref_to_group_data(group))
     }
 
     pub fn get_group_mut<'a>(
