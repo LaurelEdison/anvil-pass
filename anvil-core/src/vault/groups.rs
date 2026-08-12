@@ -45,7 +45,7 @@ impl NewGroup {
 }
 
 impl Vault {
-    pub fn get_group_by_name(&self, p_name: &str) -> Result<GroupRef, DatabaseProcessingError> {
+    pub fn get_group_by_name(&self, p_name: &str) -> Result<GroupRef<'_>, DatabaseProcessingError> {
         self.database
             .iter_all_groups()
             .find(|e| e.name == p_name)
