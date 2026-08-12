@@ -2,7 +2,6 @@
 [workspace]
 members = [
     "anvil-core",
-    "anvil-cli",
     "anvil-gui/src-tauri"
 ]
 
