@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::vault::{
     DatabaseProcessingError::{self, FailedToFindGroup, FailedToMoveGroup},
     Vault,
-    models::{GroupData, group_ref_collection_to_group_data_collection, group_ref_to_group_data},
+    models::{GroupData, group_ref_to_group_data},
 };
 
 #[derive(Debug, Clone)]
@@ -12,7 +12,7 @@ pub struct NewGroup {
     pub name: String,
     pub tags: Option<Vec<String>>,
     pub notes: Option<String>,
-    pub parent: Option<GroupId>,
+    pub parent: Option<Uuid>,
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +39,7 @@ impl NewGroup {
         self.notes = Some(notes.into());
         self
     }
-    pub fn with_parent_group(mut self, parent: impl Into<GroupId>) -> Self {
+    pub fn with_parent_group(mut self, parent: impl Into<Uuid>) -> Self {
         self.parent = Some(parent.into());
         self
     }
@@ -47,8 +47,11 @@ impl NewGroup {
 
 impl Vault {
     pub fn list_groups<'a>(&'a self) -> Vec<GroupData> {
-        let groups = self.database.iter_all_groups().collect();
-        group_ref_collection_to_group_data_collection(groups)
+        self.database
+            .iter_all_groups()
+            .into_iter()
+            .map(group_ref_to_group_data)
+            .collect()
     }
     pub fn delete_group(&mut self, group_id: Uuid) -> Result<(), DatabaseProcessingError> {
         self.database
@@ -99,8 +102,8 @@ impl Vault {
         let mut parent_group = match new_group.parent {
             Some(group_id) => self
                 .database
-                .group_mut(group_id)
-                .ok_or(FailedToFindGroup(group_id.uuid()))?,
+                .group_mut(GroupId::from(group_id))
+                .ok_or(FailedToFindGroup(group_id))?,
             None => self.database.root_mut(),
         };
 

@@ -1,10 +1,10 @@
-use keepass::db::{Entry, EntryId, EntryMut, GroupId, fields};
+use keepass::db::{EntryId, EntryMut, GroupId, fields};
 use uuid::Uuid;
 
 use crate::vault::{
     DatabaseProcessingError::{self, FailedToFindEntry, FailedToFindGroup, FailedToMoveEntry},
     Vault,
-    models::{EntryData, entry_ref_collection_to_entry_data_collection, entry_ref_to_entry_data},
+    models::{EntryData, entry_ref_to_entry_data},
 };
 
 #[derive(Debug, Clone)]
@@ -15,7 +15,7 @@ pub struct NewEntry {
     pub url: Option<String>,
     pub notes: Option<String>,
     pub totp: Option<String>,
-    pub group: Option<GroupId>,
+    pub group: Option<Uuid>,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -77,7 +77,7 @@ impl NewEntry {
             group: None,
         }
     }
-    pub fn with_parent_group(mut self, group: GroupId) -> Self {
+    pub fn with_parent_group(mut self, group: Uuid) -> Self {
         self.group = Some(group);
         self
     }
@@ -105,8 +105,11 @@ impl NewEntry {
 
 impl Vault {
     pub fn list_entries<'a>(&'a self) -> Vec<EntryData> {
-        let entries = self.database.iter_all_entries().collect();
-        entry_ref_collection_to_entry_data_collection(entries)
+        self.database
+            .iter_all_entries()
+            .into_iter()
+            .map(entry_ref_to_entry_data)
+            .collect()
     }
     pub fn move_entry(
         &mut self,
@@ -130,8 +133,8 @@ impl Vault {
         let mut group = match new_entry.group {
             Some(group_id) => self
                 .database
-                .group_mut(group_id)
-                .ok_or(FailedToFindGroup(group_id.uuid()))?,
+                .group_mut(GroupId::from_uuid(group_id))
+                .ok_or(FailedToFindGroup(group_id))?,
             None => self.database.root_mut(),
         };
         let mut entry = group.add_entry();
@@ -202,12 +205,5 @@ impl Vault {
             .remove();
         self.dirty = true;
         Ok(())
-    }
-
-    pub fn get_entries_by_group(&self, group_id: GroupId) -> Vec<Entry> {
-        self.database
-            .group(group_id)
-            .map(|g| g.entries().map(|e| e.clone()).collect())
-            .unwrap_or_default()
     }
 }

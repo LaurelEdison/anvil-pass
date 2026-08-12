@@ -1,0 +1,155 @@
+import { useEffect, useState } from "react";
+import { generatePassword } from "../api/password";
+import type { PasswordResult } from "../types/types";
+
+interface PasswordGeneratorProps {
+  onUse: (password: string) => void;
+  onClose: () => void;
+}
+
+export function PasswordGenerator({
+  onUse,
+  onClose,
+}: PasswordGeneratorProps) {
+  const [result, setResult] = useState<PasswordResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const [length, setLength] = useState(24);
+
+  const [withNumber, setWithNumber] = useState(true);
+  const [withUppercase, setWithUppercase] = useState(true);
+  const [withLowercase, setWithLowercase] = useState(true);
+  const [withSymbols, setWithSymbols] = useState(true);
+  const [withExtendedAscii, setWithExtendedAscii] = useState(false);
+
+  useEffect(() => {
+    async function generate() {
+      try {
+        const result = await generatePassword({
+          length,
+          withNumber,
+          withUppercase,
+          withLowercase,
+          withSymbols,
+          withExtendedAscii,
+        });
+
+        setResult(result);
+        setError(null);
+      } catch (error) {
+        setError(String(error));
+      }
+    }
+
+    generate();
+  }, [
+    length,
+    withNumber,
+    withUppercase,
+    withLowercase,
+    withSymbols,
+    withExtendedAscii,
+  ]);
+
+  return (
+    <div className="modal-backdrop">
+      <div className="password-generator">
+        <h2>Password Generator</h2>
+
+        <input
+          readOnly
+          value={result?.password ?? ""}
+          placeholder="Generating..."
+        />
+
+        <div>
+          <label htmlFor="password-length">
+            Length: {length}
+          </label>
+
+          <input
+            id="password-length"
+            type="range"
+            min="4"
+            max="128"
+            value={length}
+            onChange={(e) => setLength(Number(e.target.value))}
+          />
+        </div>
+
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={withNumber}
+              onChange={(e) => setWithNumber(e.target.checked)}
+            />
+            Numbers
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={withUppercase}
+              onChange={(e) => setWithUppercase(e.target.checked)}
+            />
+            Uppercase
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={withLowercase}
+              onChange={(e) => setWithLowercase(e.target.checked)}
+            />
+            Lowercase
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={withSymbols}
+              onChange={(e) => setWithSymbols(e.target.checked)}
+            />
+            Symbols
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={withExtendedAscii}
+              onChange={(e) => setWithExtendedAscii(e.target.checked)}
+            />
+            Extended ASCII
+          </label>
+        </div>
+
+        {result && (
+          <p>
+            Entropy: {result.entropy_bits.toFixed(1)} bits
+          </p>
+        )}
+
+        {error && <p>{error}</p>}
+
+        <div>
+          <button
+            type="button"
+            disabled={!result}
+            onClick={() => {
+              if (result) {
+                onUse(result.password);
+              }
+            }}
+          >
+            Use Password
+          </button>
+
+          <button type="button" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,6 +1,7 @@
 use keepass::db::{EntryRef, GroupRef};
 use uuid::Uuid;
 
+#[derive(Debug)]
 pub struct EntryData {
     pub id: Uuid,
     pub parent: Uuid,
@@ -11,6 +12,7 @@ pub struct EntryData {
     pub notes: Option<String>,
     pub totp: Option<String>,
 }
+#[derive(Debug)]
 pub struct GroupData {
     pub id: Uuid,
     pub parent: Option<Uuid>,
@@ -41,18 +43,9 @@ pub fn group_ref_to_group_data(group_ref: GroupRef) -> GroupData {
     }
 }
 
-pub fn entry_ref_collection_to_entry_data_collection(entry_refs: Vec<EntryRef>) -> Vec<EntryData> {
-    let mut result = Vec::new();
-    for entry_ref in entry_refs {
-        result.push(entry_ref_to_entry_data(entry_ref));
-    }
-    result
-}
-
-pub fn group_ref_collection_to_group_data_collection(group_refs: Vec<GroupRef>) -> Vec<GroupData> {
-    let mut result = Vec::new();
-    for group_ref in group_refs {
-        result.push(group_ref_to_group_data(group_ref));
-    }
-    result
+#[derive(Debug, Clone)]
+pub struct PasswordResult {
+    pub password: String,
+    pub entropy_bits: f64,
+    pub pool_size: usize,
 }

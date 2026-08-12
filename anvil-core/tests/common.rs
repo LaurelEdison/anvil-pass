@@ -2,10 +2,13 @@
 
 use anvil_core::{
     self,
-    vault::{Vault, entries::NewEntry},
+    vault::{DatabaseProcessingError, Vault, entries::NewEntry},
 };
-use keepass::db::{Database, GroupId};
-use std::path::PathBuf;
+use keepass::{
+    DatabaseKey,
+    db::{Database, GroupId},
+};
+use std::{fs::File, path::PathBuf};
 use tempfile::tempdir;
 use uuid::Uuid;
 
@@ -78,4 +81,22 @@ macro_rules! assert_entry_not_exists {
             $title
         );
     };
+}
+
+// As real as it can get but with weak encryption so it doesn't melt testing
+pub fn create_vault_weak_encrypt(
+    master_password: &str,
+    path: PathBuf,
+) -> Result<Vault, DatabaseProcessingError> {
+    let mut file = File::create(path.with_extension("kdbx").clone())?;
+    let db = Database::new();
+    db.save(&mut file, DatabaseKey::new().with_password(master_password))
+        .map_err(DatabaseProcessingError::Save)?;
+    let vault = Vault {
+        database: db,
+        path: path.with_extension("kdbx"),
+        dirty: false,
+    };
+
+    Ok(vault)
 }

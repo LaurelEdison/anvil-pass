@@ -3,7 +3,6 @@ pub mod database;
 pub mod entries;
 pub mod groups;
 pub mod models;
-pub mod search;
 
 use std::path::PathBuf;
 

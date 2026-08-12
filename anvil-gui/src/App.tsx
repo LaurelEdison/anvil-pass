@@ -1,51 +1,145 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+import type { EntryDto, GroupDto } from "./types/types";
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+import { HomePage } from "./pages/HomePage";
+import { VaultPage } from "./pages/VaultPage";
+import { EditEntryPage } from "./pages/EditEntryPage";
+import { CreateEntryPage } from "./pages/CreateEntryPage";
+import { CreateGroupPage } from "./pages/CreateGroupPage";
+import { EditGroupPage } from "./pages/EditGroupPage";
+import { CreateVaultPage } from "./pages/CreateVaultPage";
+import { TopBar } from "./components/TopBar";
+import { clearVault, saveVault } from "./api/vault";
+
+type Page =
+  | { type: "home" }
+  | { type: "vault" }
+  | { type: "create-vault" }
+  | { type: "edit-entry"; entry: EntryDto }
+  | { type: "create-entry"; parent: string | null }
+  | { type: "create-group"; parent: string | null }
+  | { type: "edit-group"; group: GroupDto };
+
+function App() {
+  const [page, setPage] = useState<Page>({
+    type: "home",
+  });
+
+  const [dirty, setDirty] = useState(false);
+
+  async function handleSave() {
+    try {
+      await saveVault();
+      setDirty(false);
+    } catch (error) {
+      console.error("Failed to save vault:", error);
+    }
   }
 
-  return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+  async function handleLock() {
+    try {
+      await clearVault();
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+      setDirty(false);
+      setPage({ type: "home" });
+    } catch (error) {
+      console.error("Failed to lock vault:", error);
+    }
+  }
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
+  switch (page.type) {
+    case "home":
+      return (
+        <HomePage
+          onOpened={() => setPage({ type: "vault" })}
+          onCreateVault={() => setPage({ type: "create-vault" })}
         />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
-  );
+      );
+
+    case "vault":
+      return (
+        <main>
+          <TopBar dirty={dirty} onSave={handleSave} onLock={handleLock} />
+          <VaultPage
+            onDirty={() => setDirty(true)}
+            onEditEntry={(entry) =>
+              setPage({
+                type: "edit-entry",
+                entry,
+              })
+            }
+            onCreateEntry={(parent) =>
+              setPage({
+                type: "create-entry",
+                parent,
+              })
+            }
+            onCreateGroup={(parent) =>
+              setPage({
+                type: "create-group",
+                parent: parent,
+              })
+            }
+            onEditGroup={(group) =>
+              setPage({
+                type: "edit-group",
+                group,
+              })
+            }
+          />
+        </main>
+      );
+
+    case "create-entry":
+      return (
+        <CreateEntryPage
+          parent={page.parent}
+          onCreated={() => setPage({ type: "vault" })}
+          onCancel={() => setPage({ type: "vault" })}
+          onDirty={() => setDirty(true)}
+        />
+      );
+
+    case "edit-entry":
+      return (
+        <EditEntryPage
+          entry={page.entry}
+          onDirty={() => setDirty(true)}
+          onBack={() => setPage({ type: "vault" })}
+        />
+      );
+
+    case "create-group":
+      return (
+        <CreateGroupPage
+          parent={page.parent}
+          onCreated={() => setPage({ type: "vault" })}
+          onDirty={() => setDirty(true)}
+          onCancel={() => setPage({ type: "vault" })}
+        />
+      );
+
+    case "create-vault":
+      return (
+        <CreateVaultPage
+          onCreated={() => setPage({ type: "vault" })}
+          onCancel={() => setPage({ type: "home" })}
+        />
+      );
+
+    case "edit-group":
+      return (
+        <EditGroupPage
+          group={page.group}
+          onSaved={() => setPage({ type: "vault" })}
+          onDirty={() => setDirty(true)}
+          onDeleted={() => setPage({ type: "vault" })}
+          onCancel={() => setPage({ type: "vault" })}
+        />
+      );
+  }
 }
 
 export default App;
