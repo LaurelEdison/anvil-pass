@@ -122,7 +122,7 @@ impl Vault {
             Some(s) => self.get_group(s)?,
             None => self.database.root(),
         };
-        let tree = TreeVault::populate(&self.database.root());
+        let tree = TreeVault::populate(&group);
         Ok(tree)
     }
 }

@@ -1,7 +1,4 @@
-use keepass::{
-    Database,
-    db::{Entry, EntryId, EntryMut, EntryRef, GroupId, fields},
-};
+use keepass::db::{Entry, EntryId, EntryMut, EntryRef, GroupId, fields};
 use uuid::Uuid;
 
 use crate::vault::{

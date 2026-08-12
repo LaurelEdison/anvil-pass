@@ -1,8 +1,7 @@
-use core::time;
 use std::time::SystemTime;
 
 use base32::Alphabet;
-use totp_rs::{Algorithm::SHA1, Rfc6238, TOTP};
+use totp_rs::{Algorithm::SHA1, TOTP};
 
 pub enum Algorithms {
     Sha1,
