@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::vault::{
     DatabaseProcessingError::{self, FailedToFindGroup, FailedToMoveGroup},
     Vault,
-    models::{GroupData, group_ref_collection_to_group_data_collection, group_ref_to_group_data},
+    models::{GroupData, group_ref_to_group_data},
 };
 
 #[derive(Debug, Clone)]
@@ -47,8 +47,11 @@ impl NewGroup {
 
 impl Vault {
     pub fn list_groups<'a>(&'a self) -> Vec<GroupData> {
-        let groups = self.database.iter_all_groups().collect();
-        group_ref_collection_to_group_data_collection(groups)
+        self.database
+            .iter_all_groups()
+            .into_iter()
+            .map(group_ref_to_group_data)
+            .collect()
     }
     pub fn delete_group(&mut self, group_id: Uuid) -> Result<(), DatabaseProcessingError> {
         self.database

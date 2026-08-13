@@ -40,19 +40,3 @@ pub fn group_ref_to_group_data(group_ref: GroupRef) -> GroupData {
         parent: group_ref.parent().map(|parent| parent.id().uuid()),
     }
 }
-
-pub fn entry_ref_collection_to_entry_data_collection(entry_refs: Vec<EntryRef>) -> Vec<EntryData> {
-    let mut result = Vec::new();
-    for entry_ref in entry_refs {
-        result.push(entry_ref_to_entry_data(entry_ref));
-    }
-    result
-}
-
-pub fn group_ref_collection_to_group_data_collection(group_refs: Vec<GroupRef>) -> Vec<GroupData> {
-    let mut result = Vec::new();
-    for group_ref in group_refs {
-        result.push(group_ref_to_group_data(group_ref));
-    }
-    result
-}

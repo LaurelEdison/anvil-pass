@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::vault::{
     DatabaseProcessingError::{self, FailedToFindEntry, FailedToFindGroup, FailedToMoveEntry},
     Vault,
-    models::{EntryData, entry_ref_collection_to_entry_data_collection, entry_ref_to_entry_data},
+    models::{EntryData, entry_ref_to_entry_data},
 };
 
 #[derive(Debug, Clone)]
@@ -105,8 +105,11 @@ impl NewEntry {
 
 impl Vault {
     pub fn list_entries<'a>(&'a self) -> Vec<EntryData> {
-        let entries = self.database.iter_all_entries().collect();
-        entry_ref_collection_to_entry_data_collection(entries)
+        self.database
+            .iter_all_entries()
+            .into_iter()
+            .map(entry_ref_to_entry_data)
+            .collect()
     }
     pub fn move_entry(
         &mut self,
