@@ -71,6 +71,7 @@ dependencies = [
 name = "anvil-gui"
 version = "0.1.0"
 dependencies = [
+ "anvil-core",
  "serde",
  "serde_json",
  "tauri",
