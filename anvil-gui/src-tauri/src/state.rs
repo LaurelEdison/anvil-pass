@@ -11,10 +11,18 @@ use crate::state::AppError::PoisonedState;
 
 #[derive(Debug, Error)]
 pub enum AppError {
+    #[error("Failed to create entry: {0}")]
+    EntryCreate(DatabaseProcessingError),
+    #[error("Failed to delete entry: {0}")]
+    EntryDelete(DatabaseProcessingError),
+    #[error("Failed to update entry: {0}")]
+    EntryUpdate(DatabaseProcessingError),
     #[error("Failed to create vault: {0}")]
-    CreateVault(DatabaseProcessingError),
+    VaultCreate(DatabaseProcessingError),
+    #[error("Failed to save vault: {0}")]
+    VaultSave(DatabaseProcessingError),
     #[error("Failed to open vault: {0}")]
-    OpenVault(DatabaseProcessingError),
+    VaultOpen(DatabaseProcessingError),
     #[error("Vault locked")]
     VaultLocked,
     #[error("State poisoned: {0}")]
@@ -28,6 +36,7 @@ pub enum AppError {
 pub struct AppState {
     pub vault: Mutex<Option<Vault>>,
     pub vault_path: Mutex<Option<PathBuf>>,
+    pub master_password: Mutex<String>,
 }
 
 impl AppState {
@@ -48,6 +57,13 @@ impl AppState {
     }
     pub fn get_vault(&self) -> Result<MutexGuard<'_, Option<Vault>>, AppError> {
         let guard = self.vault.lock().map_err(|e| PoisonedState(e.to_string()));
+        guard
+    }
+    pub fn get_master_password(&self) -> Result<MutexGuard<'_, String>, AppError> {
+        let guard = self
+            .master_password
+            .lock()
+            .map_err(|e| PoisonedState(e.to_string()));
         guard
     }
 }

@@ -15,7 +15,7 @@ pub struct NewEntry {
     pub url: Option<String>,
     pub notes: Option<String>,
     pub totp: Option<String>,
-    pub group: Option<GroupId>,
+    pub group: Option<Uuid>,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -77,7 +77,7 @@ impl NewEntry {
             group: None,
         }
     }
-    pub fn with_parent_group(mut self, group: GroupId) -> Self {
+    pub fn with_parent_group(mut self, group: Uuid) -> Self {
         self.group = Some(group);
         self
     }
@@ -133,8 +133,8 @@ impl Vault {
         let mut group = match new_entry.group {
             Some(group_id) => self
                 .database
-                .group_mut(group_id)
-                .ok_or(FailedToFindGroup(group_id.uuid()))?,
+                .group_mut(GroupId::from_uuid(group_id))
+                .ok_or(FailedToFindGroup(group_id))?,
             None => self.database.root_mut(),
         };
         let mut entry = group.add_entry();

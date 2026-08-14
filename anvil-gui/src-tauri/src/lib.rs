@@ -13,6 +13,7 @@ pub fn run() {
         .manage(AppState {
             vault: Mutex::new(None),
             vault_path: Mutex::new(None),
+            master_password: Mutex::new(String::new()),
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

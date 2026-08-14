@@ -11,7 +11,7 @@ pub fn open_a_vault(
     master_password: String,
 ) -> Result<(), AppError> {
     let vault = anvil_core::vault::database::open_vault(&master_password, path.clone())
-        .map_err(|e| AppError::OpenVault(e))?;
+        .map_err(|e| AppError::VaultOpen(e))?;
     state.set_vault(vault, path.clone())?;
     Ok(())
 }
@@ -22,7 +22,7 @@ pub fn create_vault(
     master_password: String,
 ) -> Result<(), AppError> {
     let vault = anvil_core::vault::database::create_vault(&master_password, path.clone())
-        .map_err(|e| AppError::CreateVault(e))?;
+        .map_err(|e| AppError::VaultCreate(e))?;
     state.set_vault(vault, path.clone())?;
     Ok(())
 }
