@@ -8,7 +8,7 @@ use crate::{
 };
 #[tauri::command]
 pub fn update_entry(
-    state: State<'_, Mutex<AppState>>,
+    state: State<'_, AppState>,
     id: String,
     parent: String,
     title: String,
@@ -17,15 +17,20 @@ pub fn update_entry(
     url: String,
     notes: String,
     totp: String,
-) {
+) -> Result<(), AppError> {
+    let guard = state.get_vault()?;
+    let vault = guard.as_mut().unwrap();
+    Ok(())
 }
 #[tauri::command]
-pub fn delete_entry(state: State<'_, Mutex<AppState>>, id: String) -> bool {
-    true
+pub fn delete_entry(state: State<'_, AppState>, id: String) -> Result<bool, AppError> {
+    let guard = state.get_vault()?;
+    let vault = guard.as_mut().unwrap();
+    Ok(true)
 }
 #[tauri::command]
 pub fn create_entry(
-    state: State<'_, Mutex<AppState>>,
+    state: State<'_, AppState>,
     parent: String,
     title: String,
     username: String,
@@ -33,7 +38,10 @@ pub fn create_entry(
     url: String,
     notes: String,
     totp: String,
-) {
+) -> Result<(), AppError> {
+    let guard = state.get_vault()?;
+    let vault = guard.as_mut().unwrap();
+    Ok(())
 }
 #[tauri::command]
 pub fn list_entries(state: State<'_, AppState>) -> Result<Vec<EntryDto>, AppError> {
