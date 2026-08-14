@@ -1,7 +1,7 @@
 use crate::{
     commands::{
-        entry::{create_entry, delete_entry, update_entry},
-        group::{create_group, delete_group, update_group},
+        entry::{create_entry, delete_entry, list_entries, update_entry},
+        group::{create_group, delete_group, list_groups, update_group},
         vault::{create_vault, open_a_vault},
     },
     state::AppState,
@@ -22,9 +22,11 @@ pub fn run() {
             create_entry,
             update_entry,
             delete_entry,
+            list_entries,
             create_group,
             update_group,
-            delete_group
+            delete_group,
+            list_groups
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

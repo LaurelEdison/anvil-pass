@@ -1,5 +1,7 @@
 use anvil_core::vault::models::{EntryData, GroupData};
+use serde::Serialize;
 
+#[derive(Serialize)]
 pub struct EntryDto {
     pub id: String,
     pub parent: String,
@@ -10,6 +12,7 @@ pub struct EntryDto {
     pub notes: String,
     pub totp: String,
 }
+#[derive(Serialize)]
 pub struct GroupDto {
     pub id: String,
     pub parent: Option<String>,

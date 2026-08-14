@@ -1,5 +1,3 @@
-use std::sync::Mutex;
-
 use tauri::State;
 
 use crate::{

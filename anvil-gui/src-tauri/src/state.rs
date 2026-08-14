@@ -3,7 +3,7 @@ use std::{
     sync::{Mutex, MutexGuard},
 };
 
-use anvil_core::vault::{DatabaseProcessingError, Vault};
+use anvil_core::vault::Vault;
 
 use serde::Serialize;
 use thiserror::Error;

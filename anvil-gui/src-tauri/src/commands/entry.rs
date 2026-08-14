@@ -13,7 +13,6 @@ use crate::{
 pub fn update_entry(
     state: State<'_, AppState>,
     id: Uuid,
-    parent: Uuid,
     title: Option<String>,
     username: Option<String>,
     password: Option<String>,
