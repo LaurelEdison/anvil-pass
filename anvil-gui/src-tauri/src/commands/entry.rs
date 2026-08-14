@@ -22,7 +22,7 @@ pub fn update_entry(
     totp: Option<String>,
 ) -> Result<(), AppError> {
     let mut guard = state.get_vault()?;
-    let vault = guard.as_mut().unwrap();
+    let vault = guard.as_mut().ok_or(AppError::VaultNone)?;
     let master_guard = state.get_master_password()?;
     let master_password = master_guard.as_str();
     let update_entry = UpdateEntry {
@@ -45,7 +45,7 @@ pub fn update_entry(
 #[tauri::command]
 pub fn delete_entry(state: State<'_, AppState>, entry_id: Uuid) -> Result<bool, AppError> {
     let mut guard = state.get_vault()?;
-    let vault = guard.as_mut().unwrap();
+    let vault = guard.as_mut().ok_or(AppError::VaultNone)?;
     let master_guard = state.get_master_password()?;
     let master_password = master_guard.as_str();
     vault.delete_entry(entry_id).map_err(|e| EntryDelete(e))?;
@@ -66,7 +66,7 @@ pub fn create_entry(
     totp: Option<String>,
 ) -> Result<(), AppError> {
     let mut vault_guard = state.get_vault()?;
-    let vault = vault_guard.as_mut().unwrap();
+    let vault = vault_guard.as_mut().ok_or(AppError::VaultNone)?;
     let master_guard = state.get_master_password()?;
     let master_password = master_guard.as_str();
     let new_entry = NewEntry {
@@ -87,7 +87,7 @@ pub fn create_entry(
 #[tauri::command]
 pub fn list_entries(state: State<'_, AppState>) -> Result<Vec<EntryDto>, AppError> {
     let guard = state.get_vault()?;
-    let vault = guard.as_ref().unwrap();
+    let vault = guard.as_ref().ok_or(AppError::VaultNone)?;
     Ok(vault
         .list_entries()
         .into_iter()

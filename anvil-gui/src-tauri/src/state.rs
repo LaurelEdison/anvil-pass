@@ -12,11 +12,19 @@ use crate::state::AppError::PoisonedState;
 #[derive(Debug, Error)]
 pub enum AppError {
     #[error("Failed to create entry: {0}")]
+    GroupDelete(DatabaseProcessingError),
+    #[error("Failed to create entry: {0}")]
+    GroupCreate(DatabaseProcessingError),
+    #[error("Failed to create entry: {0}")]
+    GroupUpdate(DatabaseProcessingError),
+
+    #[error("Failed to create entry: {0}")]
     EntryCreate(DatabaseProcessingError),
     #[error("Failed to delete entry: {0}")]
     EntryDelete(DatabaseProcessingError),
     #[error("Failed to update entry: {0}")]
     EntryUpdate(DatabaseProcessingError),
+
     #[error("Failed to create vault: {0}")]
     VaultCreate(DatabaseProcessingError),
     #[error("Failed to save vault: {0}")]
@@ -25,10 +33,10 @@ pub enum AppError {
     VaultOpen(DatabaseProcessingError),
     #[error("Vault locked")]
     VaultLocked,
+    #[error("Vault not defined")]
+    VaultNone,
     #[error("State poisoned: {0}")]
     PoisonedState(String),
-    #[error("Vault not defined")]
-    NoneVault,
     #[error("Vault path not defined")]
     NonePath,
 }
