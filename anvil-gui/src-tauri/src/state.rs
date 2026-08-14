@@ -5,32 +5,33 @@ use std::{
 
 use anvil_core::vault::{DatabaseProcessingError, Vault};
 
+use serde::Serialize;
 use thiserror::Error;
 
 use crate::state::AppError::PoisonedState;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Serialize)]
 pub enum AppError {
     #[error("Failed to create entry: {0}")]
-    GroupDelete(DatabaseProcessingError),
+    GroupDelete(String),
     #[error("Failed to create entry: {0}")]
-    GroupCreate(DatabaseProcessingError),
+    GroupCreate(String),
     #[error("Failed to create entry: {0}")]
-    GroupUpdate(DatabaseProcessingError),
+    GroupUpdate(String),
 
     #[error("Failed to create entry: {0}")]
-    EntryCreate(DatabaseProcessingError),
+    EntryCreate(String),
     #[error("Failed to delete entry: {0}")]
-    EntryDelete(DatabaseProcessingError),
+    EntryDelete(String),
     #[error("Failed to update entry: {0}")]
-    EntryUpdate(DatabaseProcessingError),
+    EntryUpdate(String),
 
     #[error("Failed to create vault: {0}")]
-    VaultCreate(DatabaseProcessingError),
+    VaultCreate(String),
     #[error("Failed to save vault: {0}")]
-    VaultSave(DatabaseProcessingError),
+    VaultSave(String),
     #[error("Failed to open vault: {0}")]
-    VaultOpen(DatabaseProcessingError),
+    VaultOpen(String),
     #[error("Vault locked")]
     VaultLocked,
     #[error("Vault not defined")]
@@ -48,6 +49,13 @@ pub struct AppState {
 }
 
 impl AppState {
+    pub fn new() -> AppState {
+        AppState {
+            vault: Mutex::new(None),
+            vault_path: Mutex::new(None),
+            master_password: Mutex::new(String::new()),
+        }
+    }
     pub fn set_vault(&self, vault: Vault, path: PathBuf) -> Result<(), AppError> {
         let mut vault_lock = self
             .vault

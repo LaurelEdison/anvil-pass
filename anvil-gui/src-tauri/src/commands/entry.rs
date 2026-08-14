@@ -36,10 +36,10 @@ pub fn update_entry(
 
     vault
         .update_entry(id, update_entry)
-        .map_err(|e| EntryUpdate(e))?;
+        .map_err(|e| EntryUpdate(e.to_string()))?;
     vault
         .save(master_password)
-        .map_err(|e| AppError::VaultSave(e))?;
+        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]
@@ -48,10 +48,12 @@ pub fn delete_entry(state: State<'_, AppState>, entry_id: Uuid) -> Result<bool, 
     let vault = guard.as_mut().ok_or(AppError::VaultNone)?;
     let master_guard = state.get_master_password()?;
     let master_password = master_guard.as_str();
-    vault.delete_entry(entry_id).map_err(|e| EntryDelete(e))?;
+    vault
+        .delete_entry(entry_id)
+        .map_err(|e| EntryDelete(e.to_string()))?;
     vault
         .save(master_password)
-        .map_err(|e| AppError::VaultSave(e))?;
+        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(true)
 }
 #[tauri::command]
@@ -78,10 +80,12 @@ pub fn create_entry(
         totp,
         group: parent,
     };
-    vault.add_entry(new_entry).map_err(|e| EntryCreate(e))?;
+    vault
+        .add_entry(new_entry)
+        .map_err(|e| EntryCreate(e.to_string()))?;
     vault
         .save(master_password)
-        .map_err(|e| AppError::VaultSave(e))?;
+        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]

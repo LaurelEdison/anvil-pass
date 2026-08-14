@@ -15,7 +15,7 @@ pub fn update_group(state: State<'_, AppState>, id: String) -> Result<(), AppErr
     let master_password = master_guard.as_str();
     vault
         .save(master_password)
-        .map_err(|e| AppError::VaultSave(e))?;
+        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]
@@ -26,7 +26,7 @@ pub fn delete_group(state: State<'_, AppState>, id: String) -> Result<(), AppErr
     let master_password = master_guard.as_str();
     vault
         .save(master_password)
-        .map_err(|e| AppError::VaultSave(e))?;
+        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]
@@ -37,7 +37,7 @@ pub fn create_group(state: State<'_, AppState>) -> Result<(), AppError> {
     let master_password = master_guard.as_str();
     vault
         .save(master_password)
-        .map_err(|e| AppError::VaultSave(e))?;
+        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]
