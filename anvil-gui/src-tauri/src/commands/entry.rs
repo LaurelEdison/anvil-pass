@@ -1,3 +1,5 @@
+use std::sync::Mutex;
+
 use anvil_core::vault::entries::{NewEntry, UpdateEntry};
 use tauri::State;
 use uuid::Uuid;
@@ -11,7 +13,7 @@ use crate::{
 };
 #[tauri::command]
 pub fn update_entry(
-    state: State<'_, AppState>,
+    state: State<'_, Mutex<AppState>>,
     id: Uuid,
     title: Option<String>,
     username: Option<String>,
@@ -20,10 +22,18 @@ pub fn update_entry(
     notes: Option<String>,
     totp: Option<String>,
 ) -> Result<(), AppError> {
-    let mut guard = state.get_vault()?;
-    let vault = guard.as_mut().ok_or(AppError::VaultNone)?;
-    let master_guard = state.get_master_password()?;
-    let master_password = master_guard.as_str();
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+
+    let AppState {
+        vault,
+        master_password,
+        ..
+    } = &mut *guard;
+
+    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+
     let update_entry = UpdateEntry {
         title,
         username,
@@ -36,28 +46,37 @@ pub fn update_entry(
     vault
         .update_entry(id, update_entry)
         .map_err(|e| EntryUpdate(e.to_string()))?;
+
     vault
         .save(master_password)
         .map_err(|e| AppError::VaultSave(e.to_string()))?;
+
     Ok(())
 }
 #[tauri::command]
-pub fn delete_entry(state: State<'_, AppState>, entry_id: Uuid) -> Result<bool, AppError> {
-    let mut guard = state.get_vault()?;
-    let vault = guard.as_mut().ok_or(AppError::VaultNone)?;
-    let master_guard = state.get_master_password()?;
-    let master_password = master_guard.as_str();
+pub fn delete_entry(state: State<'_, Mutex<AppState>>, entry_id: Uuid) -> Result<(), AppError> {
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+
+    let AppState {
+        vault,
+        master_password,
+        ..
+    } = &mut *guard;
+
+    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
     vault
         .delete_entry(entry_id)
         .map_err(|e| EntryDelete(e.to_string()))?;
     vault
         .save(master_password)
         .map_err(|e| AppError::VaultSave(e.to_string()))?;
-    Ok(true)
+    Ok(())
 }
 #[tauri::command]
 pub fn create_entry(
-    state: State<'_, AppState>,
+    state: State<'_, Mutex<AppState>>,
     parent: Option<Uuid>,
     title: Option<String>,
     username: Option<String>,
@@ -66,10 +85,17 @@ pub fn create_entry(
     notes: Option<String>,
     totp: Option<String>,
 ) -> Result<(), AppError> {
-    let mut vault_guard = state.get_vault()?;
-    let vault = vault_guard.as_mut().ok_or(AppError::VaultNone)?;
-    let master_guard = state.get_master_password()?;
-    let master_password = master_guard.as_str();
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+
+    let AppState {
+        vault,
+        master_password,
+        ..
+    } = &mut *guard;
+
+    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
     let new_entry = NewEntry {
         title,
         username,
@@ -88,9 +114,11 @@ pub fn create_entry(
     Ok(())
 }
 #[tauri::command]
-pub fn list_entries(state: State<'_, AppState>) -> Result<Vec<EntryDto>, AppError> {
-    let guard = state.get_vault()?;
-    let vault = guard.as_ref().ok_or(AppError::VaultNone)?;
+pub fn list_entries(state: State<'_, Mutex<AppState>>) -> Result<Vec<EntryDto>, AppError> {
+    let guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+    let vault = guard.vault.as_ref().ok_or(AppError::VaultNone)?;
     Ok(vault
         .list_entries()
         .into_iter()

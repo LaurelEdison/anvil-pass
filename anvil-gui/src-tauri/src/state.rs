@@ -33,7 +33,7 @@ pub enum AppError {
     #[error("Failed to open vault: {0}")]
     VaultOpen(String),
     #[error("Vault locked")]
-    VaultLocked,
+    StateLocked(String),
     #[error("Vault not defined")]
     VaultNone,
     #[error("State poisoned: {0}")]
@@ -43,43 +43,22 @@ pub enum AppError {
 }
 
 pub struct AppState {
-    pub vault: Mutex<Option<Vault>>,
-    pub vault_path: Mutex<Option<PathBuf>>,
-    pub master_password: Mutex<String>,
+    pub vault: Option<Vault>,
+    pub vault_path: Option<PathBuf>,
+    pub master_password: String,
 }
 
 impl AppState {
-    pub fn new() -> AppState {
-        AppState {
-            vault: Mutex::new(None),
-            vault_path: Mutex::new(None),
-            master_password: Mutex::new(String::new()),
-        }
+    pub fn new() -> Mutex<AppState> {
+        Mutex::new(AppState {
+            vault: (None),
+            vault_path: (None),
+            master_password: (String::new()),
+        })
     }
-    pub fn set_vault(&self, vault: Vault, path: PathBuf) -> Result<(), AppError> {
-        let mut vault_lock = self
-            .vault
-            .lock()
-            .map_err(|e| AppError::PoisonedState(e.to_string()))?;
-        let mut path_lock = self
-            .vault_path
-            .lock()
-            .map_err(|e| AppError::PoisonedState(e.to_string()))?;
-
-        *vault_lock = Some(vault);
-        *path_lock = Some(path);
-
+    pub fn set_vault(&mut self, vault: Vault, path: PathBuf) -> Result<(), AppError> {
+        self.vault = Some(vault);
+        self.vault_path = Some(path);
         Ok(())
-    }
-    pub fn get_vault(&self) -> Result<MutexGuard<'_, Option<Vault>>, AppError> {
-        let guard = self.vault.lock().map_err(|e| PoisonedState(e.to_string()));
-        guard
-    }
-    pub fn get_master_password(&self) -> Result<MutexGuard<'_, String>, AppError> {
-        let guard = self
-            .master_password
-            .lock()
-            .map_err(|e| PoisonedState(e.to_string()));
-        guard
     }
 }
