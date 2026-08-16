@@ -1,49 +1,74 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { EntryDto, GroupDto } from "./types/types";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [groups, setGroups] = useState<GroupDto[]>([]);
+  const [entries, setEntries] = useState<EntryDto[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+  useEffect(() => {
+    async function loadVault() {
+      try {
+        await invoke("open_a_vault", {
+          path: "C:\\Users\\arelf\\Downloads\\testing.kdbx",
+          masterPassword: "password",
+        });
+
+        const groups = await invoke<GroupDto[]>("list_groups");
+        const entries = await invoke<EntryDto[]>("list_entries");
+
+        setGroups(groups);
+        setEntries(entries);
+      } catch (error) {
+        console.error(error);
+        setError(String(error));
+      }
+    }
+
+    loadVault();
+  }, []);
+
+  if (error) {
+    return (
+      <main className="container">
+        <h1>Error</h1>
+        <pre>{error}</pre>
+      </main>
+    );
   }
 
   return (
     <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+      <h1>Anvil</h1>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+      <h2>Groups</h2>
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
+      {groups.length === 0 ? (
+        <p>No groups found.</p>
+      ) : (
+        groups.map((group) => (
+          <div key={group.id}>
+            {group.name}
+          </div>
+        ))
+      )}
+
+      <h2>Entries</h2>
+
+      {entries.length === 0 ? (
+        <p>No entries found.</p>
+      ) : (
+        entries.map((entry) => (
+          <div key={entry.id}>
+            <h3>{entry.title}</h3>
+            <p>Username: {entry.username}</p>
+            <p>Password: {entry.password}</p>
+            <p>URL: {entry.url}</p>
+          </div>
+        ))
+      )}
     </main>
   );
 }
