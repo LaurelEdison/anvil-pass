@@ -13,7 +13,7 @@ export function Sidebar({
 }: SidebarProps) {
 	return (
 		<aside className="sidebar">
-			<h2>Anvil</h2>
+			<h2>Logo</h2>
 
 			<button
 				onClick={() => onSelectGroup(null)}
