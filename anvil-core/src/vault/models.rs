@@ -1,6 +1,7 @@
 use keepass::db::{EntryRef, GroupRef};
 use uuid::Uuid;
 
+#[derive(Debug)]
 pub struct EntryData {
     pub id: Uuid,
     pub parent: Uuid,
@@ -11,6 +12,7 @@ pub struct EntryData {
     pub notes: Option<String>,
     pub totp: Option<String>,
 }
+#[derive(Debug)]
 pub struct GroupData {
     pub id: Uuid,
     pub parent: Option<Uuid>,
