@@ -2,10 +2,15 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { EntryDto, GroupDto } from "./types/types";
+import { Sidebar } from "./components/Sidebar";
+import { EntryList } from "./components/EntryList";
+import { EntryDetail } from "./components/EntryDetail";
 
 function App() {
   const [groups, setGroups] = useState<GroupDto[]>([]);
   const [entries, setEntries] = useState<EntryDto[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<EntryDto | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,9 +35,14 @@ function App() {
     loadVault();
   }, []);
 
+  const visibleEntries =
+    selectedGroup === null
+      ? entries
+      : entries.filter((entry) => entry.parent === selectedGroup);
+
   if (error) {
     return (
-      <main className="container">
+      <main className="app">
         <h1>Error</h1>
         <pre>{error}</pre>
       </main>
@@ -40,35 +50,23 @@ function App() {
   }
 
   return (
-    <main className="container">
-      <h1>Anvil</h1>
+    <main className="app">
+      <Sidebar
+        groups={groups}
+        selectedGroup={selectedGroup}
+        onSelectGroup={(groupId) => {
+          setSelectedGroup(groupId);
+          setSelectedEntry(null);
+        }}
+      />
 
-      <h2>Groups</h2>
+      <EntryList
+        entries={visibleEntries}
+        selectedEntry={selectedEntry}
+        onSelectEntry={setSelectedEntry}
+      />
 
-      {groups.length === 0 ? (
-        <p>No groups found.</p>
-      ) : (
-        groups.map((group) => (
-          <div key={group.id}>
-            {group.name}
-          </div>
-        ))
-      )}
-
-      <h2>Entries</h2>
-
-      {entries.length === 0 ? (
-        <p>No entries found.</p>
-      ) : (
-        entries.map((entry) => (
-          <div key={entry.id}>
-            <h3>{entry.title}</h3>
-            <p>Username: {entry.username}</p>
-            <p>Password: {entry.password}</p>
-            <p>URL: {entry.url}</p>
-          </div>
-        ))
-      )}
+      <EntryDetail entry={selectedEntry} />
     </main>
   );
 }
