@@ -2,9 +2,10 @@ import { EntryDto } from "../types/types";
 
 interface EntryDetailProps {
 	entry: EntryDto | null;
+	onEdit: (entry: EntryDto) => void;
 }
 
-export function EntryDetail({ entry }: EntryDetailProps) {
+export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
 	if (entry === null) {
 		return (
 			<section className="entry-detail">
@@ -15,7 +16,13 @@ export function EntryDetail({ entry }: EntryDetailProps) {
 
 	return (
 		<section className="entry-detail">
-			<h2>{entry.title}</h2>
+			<div>
+				<h2>{entry.title || "Untitled"}</h2>
+
+				<button onClick={() => onEdit(entry)}>
+					Edit
+				</button>
+			</div>
 
 			<div>
 				<strong>Username</strong>
