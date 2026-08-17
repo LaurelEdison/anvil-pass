@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use anvil_core::vault::groups::NewGroup;
+use anvil_core::vault::groups::{NewGroup, UpdateGroup};
 use tauri::State;
 use uuid::Uuid;
 
@@ -10,7 +10,13 @@ use crate::{
 };
 
 #[tauri::command]
-pub fn update_group(state: State<'_, Mutex<AppState>>, group_id: Uuid) -> Result<(), AppError> {
+pub fn update_group(
+    state: State<'_, Mutex<AppState>>,
+    group_id: Uuid,
+    name: Option<String>,
+    tags: Option<Vec<String>>,
+    notes: Option<String>,
+) -> Result<(), AppError> {
     let mut guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
@@ -22,6 +28,12 @@ pub fn update_group(state: State<'_, Mutex<AppState>>, group_id: Uuid) -> Result
     } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+
+    let update_group = UpdateGroup { name, tags, notes };
+
+    vault
+        .update_group(group_id, update_group)
+        .map_err(|e| AppError::GroupUpdate(e.to_string()))?;
 
     vault
         .save(master_password)
@@ -50,7 +62,13 @@ pub fn delete_group(state: State<'_, Mutex<AppState>>, group_id: Uuid) -> Result
     Ok(())
 }
 #[tauri::command]
-pub fn create_group(state: State<'_, Mutex<AppState>>, name: String) -> Result<(), AppError> {
+pub fn create_group(
+    state: State<'_, Mutex<AppState>>,
+    name: String,
+    tags: Option<Vec<String>>,
+    notes: Option<String>,
+    parent: Option<Uuid>,
+) -> Result<(), AppError> {
     let mut guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
@@ -62,7 +80,12 @@ pub fn create_group(state: State<'_, Mutex<AppState>>, name: String) -> Result<(
     } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
-    let new_group = NewGroup::new(name);
+    let new_group = NewGroup {
+        name,
+        tags,
+        notes,
+        parent,
+    };
     vault
         .add_group(new_group)
         .map_err(|e| AppError::GroupCreate(e.to_string()))?;
