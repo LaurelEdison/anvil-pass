@@ -40,3 +40,23 @@
 .entry-detail p {
   margin-top: 4px;
 }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.password-generator {
+  width: 400px;
+  padding: 24px;
+  background: white;
+}
+
+.password-generator label {
+  display: block;
+  margin: 8px 0;
+}

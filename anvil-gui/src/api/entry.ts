@@ -19,12 +19,12 @@ export async function createEntry(data: {
 
 export async function updateEntry(data: {
 	id: string;
-	title?: string | null;
-	username?: string | null;
-	password?: string | null;
-	url?: string | null;
-	notes?: string | null;
-	totp?: string | null;
+	title: string | null;
+	username: string | null;
+	password: string | null;
+	url: string | null;
+	notes: string | null;
+	totp: string | null;
 }): Promise<void> {
 	await invoke("update_entry", data);
 }
