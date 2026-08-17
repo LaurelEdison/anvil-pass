@@ -11,6 +11,7 @@ function App() {
   const [entries, setEntries] = useState<EntryDto[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<EntryDto | null>(null);
+  const [editingEntry, setEditingEntry] = useState<EntryDto | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,7 +67,10 @@ function App() {
         onSelectEntry={setSelectedEntry}
       />
 
-      <EntryDetail entry={selectedEntry} />
+      <EntryDetail
+        entry={selectedEntry}
+        onEdit={setEditingEntry}
+      />
     </main>
   );
 }
