@@ -1,4 +1,4 @@
-use anvil_core::vault::models::{EntryData, GroupData};
+use anvil_core::vault::models::{EntryData, GroupData, PasswordResult};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -19,6 +19,20 @@ pub struct GroupDto {
     pub name: String,
     pub tags: Vec<String>,
     pub notes: String,
+}
+#[derive(Serialize)]
+pub struct PasswordResultDto {
+    pub password: String,
+    pub entropy_bits: f64,
+    pub pool_size: usize,
+}
+
+pub fn password_to_password_dto(password: PasswordResult) -> PasswordResultDto {
+    PasswordResultDto {
+        password: password.password,
+        entropy_bits: password.entropy_bits,
+        pool_size: password.pool_size,
+    }
 }
 
 pub fn entry_data_to_entry_dto(entry_data: EntryData) -> EntryDto {

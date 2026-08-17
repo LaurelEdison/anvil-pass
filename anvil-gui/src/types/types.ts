@@ -16,3 +16,18 @@ export interface GroupDto {
 	tags: string[];
 	notes: string;
 }
+
+export interface PasswordOptions {
+	length?: number;
+	withNumber?: boolean;
+	withUppercase?: boolean;
+	withLowercase?: boolean;
+	withSymbols?: boolean;
+	withExtendedAscii?: boolean;
+}
+
+export interface PasswordResult {
+	password: string;
+	entropy_bits: number;
+	pool_size: number;
+}
