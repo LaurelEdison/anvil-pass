@@ -42,3 +42,10 @@ pub fn group_ref_to_group_data(group_ref: GroupRef) -> GroupData {
         parent: group_ref.parent().map(|parent| parent.id().uuid()),
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct PasswordResult {
+    pub password: String,
+    pub entropy_bits: f64,
+    pub pool_size: usize,
+}
