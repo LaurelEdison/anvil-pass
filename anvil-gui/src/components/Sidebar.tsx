@@ -1,34 +1,43 @@
-import { GroupDto } from "../types/types";
+import type { GroupDto } from "../types/types";
 
 interface SidebarProps {
   groups: GroupDto[];
   selectedGroup: string | null;
   onSelectGroup: (groupId: string | null) => void;
+  onCreateGroup: () => void;
+  onEditGroup: (group: GroupDto) => void;
 }
 
 export function Sidebar({
   groups,
   selectedGroup,
   onSelectGroup,
+  onCreateGroup,
+  onEditGroup,
 }: SidebarProps) {
   return (
     <aside className="sidebar">
-      <h2>Logo</h2>
+      <div>
+        <h2>Groups</h2>
+
+        <button type="button" onClick={onCreateGroup}>
+          +
+        </button>
+      </div>
 
       <button
+        type="button"
         onClick={() => onSelectGroup(null)}
-        disabled={selectedGroup === null}
       >
-        All Items
+        All Entries
       </button>
-
-      <h3>Groups</h3>
 
       {groups.map((group) => (
         <button
+          type="button"
           key={group.id}
           onClick={() => onSelectGroup(group.id)}
-          disabled={selectedGroup === group.id}
+          onDoubleClick={() => onEditGroup(group)}
         >
           {group.name}
         </button>
