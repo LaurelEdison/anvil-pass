@@ -45,11 +45,13 @@ pub fn update_entry(
 
     vault
         .update_entry(id, update_entry)
-        .map_err(|e| EntryUpdate(e.to_string()))?;
+        .map_err(|e| EntryUpdate(e.to_string()))
+        .unwrap();
 
     vault
         .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
+        .map_err(|e| AppError::VaultSave(e.to_string()))
+        .unwrap();
 
     Ok(())
 }
