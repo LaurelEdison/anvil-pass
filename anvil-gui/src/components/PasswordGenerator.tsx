@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { generatePassword } from "../api/password";
+import type { PasswordResult } from "../types/types";
 
 interface PasswordGeneratorProps {
   onUse: (password: string) => void;
@@ -10,7 +11,7 @@ export function PasswordGenerator({
   onUse,
   onClose,
 }: PasswordGeneratorProps) {
-  const [password, setPassword] = useState("");
+  const [result, setResult] = useState<PasswordResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [length, setLength] = useState(24);
@@ -33,7 +34,7 @@ export function PasswordGenerator({
           withExtendedAscii,
         });
 
-        setPassword(result.password);
+        setResult(result);
         setError(null);
       } catch (error) {
         setError(String(error));
@@ -57,8 +58,8 @@ export function PasswordGenerator({
 
         <input
           readOnly
-          value={password}
-          placeholder="Generate a password"
+          value={result?.password ?? ""}
+          placeholder="Generating..."
         />
 
         <div>
@@ -123,13 +124,23 @@ export function PasswordGenerator({
           </label>
         </div>
 
+        {result && (
+          <p>
+            Entropy: {result.entropy_bits.toFixed(1)} bits
+          </p>
+        )}
+
         {error && <p>{error}</p>}
 
         <div>
           <button
             type="button"
-            disabled={!password}
-            onClick={() => onUse(password)}
+            disabled={!result}
+            onClick={() => {
+              if (result) {
+                onUse(result.password);
+              }
+            }}
           >
             Use Password
           </button>
