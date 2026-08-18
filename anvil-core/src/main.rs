@@ -5,7 +5,7 @@ use anvil_core::vault::{self, entries::NewEntry, groups::NewGroup};
 fn main() {
     let mut vault = vault::database::create_vault(
         "password",
-        PathBuf::from_str("/mnt/c/Users/arelf/Downloads/testing.kdbx").unwrap(),
+        PathBuf::from_str("/mnt/c/Users/Ferdinand Laurel Edi/Desktop/testing.kdbx").unwrap(),
     )
     .unwrap();
 
