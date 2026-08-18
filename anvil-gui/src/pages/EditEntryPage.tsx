@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { EntryDto } from "../types/types";
 import { updateEntry } from "../api/entry";
+import { PasswordGenerator } from "../components/PasswordGenerator";
 
 interface EditEntryPageProps {
 	entry: EntryDto;
@@ -184,20 +185,13 @@ export function EditEntryPage({
 			{showPasswordGenerator && (
 				<div>
 					<div>
-						<h2>Password Generator</h2>
-
-						<p>
-							Password generator placeholder
-						</p>
-
-						<button
-							type="button"
-							onClick={() =>
-								setShowPasswordGenerator(false)
-							}
-						>
-							Close
-						</button>
+						<PasswordGenerator
+							onUse={(generatedPassword) => {
+								setPassword(generatedPassword);
+								setShowPasswordGenerator(false);
+							}}
+							onClose={() => setShowPasswordGenerator(false)}
+						/>
 					</div>
 				</div>
 			)}
