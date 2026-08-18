@@ -1,6 +1,10 @@
 use std::{path::PathBuf, str::FromStr};
 
-use anvil_core::vault::{self, entries::NewEntry, groups::NewGroup};
+use anvil_core::vault::{
+    self,
+    entries::{NewEntry, UpdateEntry},
+    groups::NewGroup,
+};
 
 fn main() {
     let mut vault = vault::database::create_vault(
@@ -38,7 +42,7 @@ fn main() {
                 .with_title("3"),
         )
         .unwrap();
-    vault
+    let entry = vault
         .add_entry(
             NewEntry::new("ehhh just tryign")
                 .with_username("username@gmail.com")
@@ -46,6 +50,31 @@ fn main() {
                 .with_title("4"),
         )
         .unwrap();
+
+    vault
+        .update_entry(
+            entry,
+            UpdateEntry {
+                title: Some("edited_entry".to_string()),
+                username: None,
+                password: None,
+                url: None,
+                notes: None,
+                totp: None,
+            },
+        )
+        .unwrap();
+
+    let entry = vault
+        .add_entry(
+            NewEntry::new("ehhh just tryign")
+                .with_username("username@gmail.com")
+                .with_url("gmail.com")
+                .with_title("should not exist"),
+        )
+        .unwrap();
+
+    vault.delete_entry(entry).unwrap();
 
     let groups = vault.list_groups();
     let entries = vault.list_entries();
