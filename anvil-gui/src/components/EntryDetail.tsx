@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { EntryDto } from "../types/types";
+import { openUrl } from "@tauri-apps/plugin-opener";
 
 interface EntryDetailProps {
   entry: EntryDto | null;
@@ -21,8 +22,8 @@ export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
     await navigator.clipboard.writeText(value);
   }
 
-  function openUrl(url: string) {
-    window.open(url, "_blank");
+  async function openUrlInBrowser(url: string) {
+    await openUrl(url);
   }
 
   return (
@@ -89,10 +90,9 @@ export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
             >
               Copy
             </button>
-
             <button
               type="button"
-              onClick={() => openUrl(entry.url)}
+              onClick={() => openUrlInBrowser(entry.url)}
             >
               Open
             </button>
