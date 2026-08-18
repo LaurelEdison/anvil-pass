@@ -4,6 +4,7 @@ import { EntryDto } from "./types/types";
 import { HomePage } from "./pages/HomePage";
 import { VaultPage } from "./pages/VaultPage";
 import { EditEntryPage } from "./pages/EditEntryPage";
+import { CreateEntryPage } from "./pages/CreateEntryPage";
 
 
 type Page =
@@ -41,7 +42,14 @@ function App() {
           }
         />
       );
-
+    case "create-entry":
+      return (
+        <CreateEntryPage
+          parent={page.parent}
+          onCreated={() => setPage({ type: "vault" })}
+          onCancel={() => setPage({ type: "vault" })}
+        />
+      );
     case "edit-entry":
       return (
         <EditEntryPage
