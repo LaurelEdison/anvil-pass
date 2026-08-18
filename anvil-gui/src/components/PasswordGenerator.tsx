@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { generatePassword } from "../api/password";
 
 interface PasswordGeneratorProps {
@@ -21,23 +21,34 @@ export function PasswordGenerator({
   const [withSymbols, setWithSymbols] = useState(true);
   const [withExtendedAscii, setWithExtendedAscii] = useState(false);
 
-  async function generate() {
-    try {
-      const result = await generatePassword({
-        length,
-        withNumber,
-        withUppercase,
-        withLowercase,
-        withSymbols,
-        withExtendedAscii,
-      });
+  useEffect(() => {
+    async function generate() {
+      try {
+        const result = await generatePassword({
+          length,
+          withNumber,
+          withUppercase,
+          withLowercase,
+          withSymbols,
+          withExtendedAscii,
+        });
 
-      setPassword(result.password);
-      setError(null);
-    } catch (error) {
-      setError(String(error));
+        setPassword(result.password);
+        setError(null);
+      } catch (error) {
+        setError(String(error));
+      }
     }
-  }
+
+    generate();
+  }, [
+    length,
+    withNumber,
+    withUppercase,
+    withLowercase,
+    withSymbols,
+    withExtendedAscii,
+  ]);
 
   return (
     <div className="modal-backdrop">
@@ -115,10 +126,6 @@ export function PasswordGenerator({
         {error && <p>{error}</p>}
 
         <div>
-          <button type="button" onClick={generate}>
-            Generate
-          </button>
-
           <button
             type="button"
             disabled={!password}
