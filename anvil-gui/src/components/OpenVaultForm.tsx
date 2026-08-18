@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { openVault } from "../api/vault";
+import { open } from "@tauri-apps/plugin-dialog";
 import type { SubmitEvent } from "react";
 
 interface OpenVaultFormProps {
@@ -11,6 +12,24 @@ export function OpenVaultForm({ onOpened }: OpenVaultFormProps) {
   const [masterPassword, setMasterPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  async function selectVault() {
+    const selected = await open({
+      multiple: false,
+      directory: false,
+      filters: [
+        {
+          name: "KeePass Database",
+          extensions: ["kdbx"],
+        },
+      ],
+    });
+
+    if (typeof selected === "string") {
+      setPath(selected);
+      setError(null);
+    }
+  }
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,13 +56,19 @@ export function OpenVaultForm({ onOpened }: OpenVaultFormProps) {
       <div>
         <label htmlFor="vault-path">Vault</label>
 
-        <input
-          id="vault-path"
-          type="text"
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
-          placeholder="Path to .kdbx file"
-        />
+        <div>
+          <input
+            id="vault-path"
+            type="text"
+            value={path}
+            readOnly
+            placeholder="Select a .kdbx file"
+          />
+
+          <button type="button" onClick={selectVault}>
+            Browse
+          </button>
+        </div>
       </div>
 
       <div>
