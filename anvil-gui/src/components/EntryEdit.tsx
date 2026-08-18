@@ -119,15 +119,13 @@ export function EntryEdit({ entry, onSaved, onCancel }: EntryEditProps) {
         </button>
       </div>
 
-      {showGenerator && (
-        <PasswordGenerator
-          onUse={(generatedPassword) => {
-            setPassword(generatedPassword);
-            setShowGenerator(false);
-          }}
-          onClose={() => setShowGenerator(false)}
-        />
-      )}
+      <PasswordGenerator
+        onUse={(generatedPassword) => {
+          setPassword(generatedPassword);
+          setShowGenerator(false);
+        }}
+        onClose={() => setShowGenerator(false)}
+      />
     </section>
   );
 }
