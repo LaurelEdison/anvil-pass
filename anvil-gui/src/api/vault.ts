@@ -9,3 +9,13 @@ export async function openVault(
     masterPassword,
   });
 }
+
+export async function createVault(
+  path: string,
+  masterPassword: string,
+): Promise<void> {
+  await invoke("create_vault", {
+    path,
+    masterPassword,
+  });
+}

@@ -9,10 +9,12 @@ import { EditEntryPage } from "./pages/EditEntryPage";
 import { CreateEntryPage } from "./pages/CreateEntryPage";
 import { CreateGroupPage } from "./pages/CreateGroupPage";
 import { EditGroupPage } from "./pages/EditGroupPage";
+import { CreateVaultPage } from "./pages/CreateVaultPage";
 
 type Page =
   | { type: "home" }
   | { type: "vault" }
+  | { type: "create-vault" }
   | { type: "edit-entry"; entry: EntryDto }
   | { type: "create-entry"; parent: string | null }
   | { type: "create-group"; parent: string | null }
@@ -28,6 +30,7 @@ function App() {
       return (
         <HomePage
           onOpened={() => setPage({ type: "vault" })}
+          onCreateVault={() => setPage({ type: "create-vault" })}
         />
       );
 
@@ -84,6 +87,14 @@ function App() {
           parent={page.parent}
           onCreated={() => setPage({ type: "vault" })}
           onCancel={() => setPage({ type: "vault" })}
+        />
+      );
+
+    case "create-vault":
+      return (
+        <CreateVaultPage
+          onCreated={() => setPage({ type: "vault" })}
+          onCancel={() => setPage({ type: "home" })}
         />
       );
 
