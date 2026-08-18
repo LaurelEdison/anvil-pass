@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { EntryDto } from "../types/types";
 
 interface EntryDetailProps {
@@ -6,6 +7,8 @@ interface EntryDetailProps {
 }
 
 export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
   if (entry === null) {
     return (
       <section className="entry-detail">
@@ -14,38 +17,102 @@ export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
     );
   }
 
+  async function copyToClipboard(value: string) {
+    await navigator.clipboard.writeText(value);
+  }
+
+  function openUrl(url: string) {
+    window.open(url, "_blank");
+  }
+
   return (
     <section className="entry-detail">
       <div>
         <h2>{entry.title || "Untitled"}</h2>
 
-        <button onClick={() => onEdit(entry)}>Edit</button>
+        <button type="button" onClick={() => onEdit(entry)}>
+          Edit
+        </button>
       </div>
 
-      <div>
-        <strong>Username</strong>
-        <p>{entry.username}</p>
-      </div>
+      {entry.username && (
+        <div>
+          <strong>Username</strong>
 
-      <div>
-        <strong>Password</strong>
-        <p>{entry.password}</p>
-      </div>
+          <div>
+            <p>{entry.username}</p>
 
-      <div>
-        <strong>URL</strong>
-        <p>{entry.url}</p>
-      </div>
+            <button
+              type="button"
+              onClick={() => copyToClipboard(entry.username)}
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
 
-      <div>
-        <strong>TOTP</strong>
-        <p>{entry.totp}</p>
-      </div>
+      {entry.password && (
+        <div>
+          <strong>Password</strong>
 
-      <div>
-        <strong>Notes</strong>
-        <p>{entry.notes}</p>
-      </div>
+          <div>
+            <p>{showPassword ? entry.password : "••••••••"}</p>
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => copyToClipboard(entry.password)}
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
+
+      {entry.url && (
+        <div>
+          <strong>URL</strong>
+
+          <div>
+            <p>{entry.url}</p>
+
+            <button
+              type="button"
+              onClick={() => copyToClipboard(entry.url)}
+            >
+              Copy
+            </button>
+
+            <button
+              type="button"
+              onClick={() => openUrl(entry.url)}
+            >
+              Open
+            </button>
+          </div>
+        </div>
+      )}
+
+      {entry.totp && (
+        <div>
+          <strong>TOTP</strong>
+          <p>{entry.totp}</p>
+        </div>
+      )}
+
+      {entry.notes && (
+        <div>
+          <strong>Notes</strong>
+          <p>{entry.notes}</p>
+        </div>
+      )}
     </section>
   );
 }
