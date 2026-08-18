@@ -1,17 +1,23 @@
 import { useState } from "react";
 import "./App.css";
-import { EntryDto } from "./types/types";
+
+import type { EntryDto, GroupDto } from "./types/types";
+
 import { HomePage } from "./pages/HomePage";
 import { VaultPage } from "./pages/VaultPage";
 import { EditEntryPage } from "./pages/EditEntryPage";
 import { CreateEntryPage } from "./pages/CreateEntryPage";
-
+import { CreateGroupPage } from "./pages/CreateGroupPage";
+import { EditGroupPage } from "./pages/EditGroupPage";
 
 type Page =
   | { type: "home" }
   | { type: "vault" }
   | { type: "edit-entry"; entry: EntryDto }
-  | { type: "create-entry"; parent: string | null };
+  | { type: "create-entry"; parent: string | null }
+  | { type: "create-group"; parent: string | null }
+  | { type: "edit-group"; group: GroupDto };
+
 function App() {
   const [page, setPage] = useState<Page>({
     type: "home",
@@ -40,8 +46,21 @@ function App() {
               parent: null,
             })
           }
+          onCreateGroup={() =>
+            setPage({
+              type: "create-group",
+              parent: null,
+            })
+          }
+          onEditGroup={(group) =>
+            setPage({
+              type: "edit-group",
+              group,
+            })
+          }
         />
       );
+
     case "create-entry":
       return (
         <CreateEntryPage
@@ -50,11 +69,31 @@ function App() {
           onCancel={() => setPage({ type: "vault" })}
         />
       );
+
     case "edit-entry":
       return (
         <EditEntryPage
           entry={page.entry}
           onBack={() => setPage({ type: "vault" })}
+        />
+      );
+
+    case "create-group":
+      return (
+        <CreateGroupPage
+          parent={page.parent}
+          onCreated={() => setPage({ type: "vault" })}
+          onCancel={() => setPage({ type: "vault" })}
+        />
+      );
+
+    case "edit-group":
+      return (
+        <EditGroupPage
+          group={page.group}
+          onSaved={() => setPage({ type: "vault" })}
+          onDeleted={() => setPage({ type: "vault" })}
+          onCancel={() => setPage({ type: "vault" })}
         />
       );
   }
