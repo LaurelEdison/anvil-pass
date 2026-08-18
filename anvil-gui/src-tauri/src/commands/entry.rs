@@ -33,6 +33,7 @@ pub fn update_entry(
     } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+    let master_password = master_password.as_str();
 
     let update_entry = UpdateEntry {
         title,
@@ -48,6 +49,7 @@ pub fn update_entry(
         .map_err(|e| EntryUpdate(e.to_string()))
         .unwrap();
 
+    println!("{:?}", master_password);
     vault
         .save(master_password)
         .map_err(|e| AppError::VaultSave(e.to_string()))
