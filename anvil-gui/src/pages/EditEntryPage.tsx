@@ -18,6 +18,7 @@ export function EditEntryPage({
 	const [url, setUrl] = useState(entry.url);
 	const [notes, setNotes] = useState(entry.notes);
 	const [totp, setTotp] = useState(entry.totp);
+	const [showPassword, setShowPassword] = useState(false);
 
 	const [showPasswordGenerator, setShowPasswordGenerator] =
 		useState(false);
@@ -110,23 +111,32 @@ export function EditEntryPage({
 					</label>
 
 					<div>
-						<input
-							id="entry-password"
-							type="password"
-							value={password}
-							onChange={(e) =>
-								setPassword(e.target.value)
-							}
-						/>
+						<label htmlFor="entry-password">
+							Password
+						</label>
 
-						<button
-							type="button"
-							onClick={() =>
-								setShowPasswordGenerator(true)
-							}
-						>
-							Generate Password
-						</button>
+						<div>
+							<input
+								id="entry-password"
+								type={showPassword ? "text" : "password"}
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+							/>
+
+							<button
+								type="button"
+								onClick={() => setShowPassword((value) => !value)}
+							>
+								{showPassword ? "Hide" : "Show"}
+							</button>
+
+							<button
+								type="button"
+								onClick={() => setShowPasswordGenerator(true)}
+							>
+								Generate Password
+							</button>
+						</div>
 					</div>
 				</div>
 
