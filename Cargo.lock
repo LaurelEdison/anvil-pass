@@ -61,6 +61,7 @@ dependencies = [
  "passwords",
  "rand 0.10.1",
  "regex",
+ "rust-argon2",
  "tempfile",
  "thiserror 2.0.20",
  "totp-rs",

@@ -1,6 +1,6 @@
 use std::{fs::File, path::PathBuf};
 
-use keepass::{Database, DatabaseKey};
+use keepass::{Database, DatabaseKey, config::DatabaseConfig};
 
 use crate::vault::{DatabaseProcessingError, Vault};
 
@@ -41,7 +41,15 @@ pub fn create_vault(
     path: PathBuf,
 ) -> Result<Vault, DatabaseProcessingError> {
     let mut file = File::create(path.with_extension("kdbx").clone())?;
-    let db = Database::new();
+    let mut db_config = DatabaseConfig::default();
+
+    db_config.kdf_config = keepass::config::KdfConfig::Argon2id {
+        iterations: 80,
+        memory: 65536 * 1024,
+        parallelism: 4,
+        version: argon2::Version::Version13,
+    };
+    let db = Database::with_config(db_config);
     db.save(&mut file, DatabaseKey::new().with_password(master_password))
         .map_err(DatabaseProcessingError::Save)?;
     let vault = Vault {
