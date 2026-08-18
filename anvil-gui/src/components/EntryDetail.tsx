@@ -6,7 +6,13 @@ interface EntryDetailProps {
   entry: EntryDto | null;
   onEdit: (entry: EntryDto) => void;
 }
+function normalizeUrl(url: string): string {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(url)) {
+    return url;
+  }
 
+  return `https://${url}`;
+}
 export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -23,7 +29,7 @@ export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
   }
 
   async function openUrlInBrowser(url: string) {
-    await openUrl(url);
+    await openUrl(normalizeUrl(url));
   }
 
   return (
