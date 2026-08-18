@@ -10,5 +10,6 @@ export async function generatePassword(
     withLowercase: options.withLowercase,
     withSymbols: options.withSymbols,
     withExtendedAscii: options.withExtendedAscii,
+    withLength: options.length,
   });
 }

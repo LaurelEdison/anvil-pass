@@ -6,9 +6,14 @@ interface PasswordGeneratorProps {
   onClose: () => void;
 }
 
-export function PasswordGenerator({ onUse, onClose }: PasswordGeneratorProps) {
+export function PasswordGenerator({
+  onUse,
+  onClose,
+}: PasswordGeneratorProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  const [length, setLength] = useState(24);
 
   const [withNumber, setWithNumber] = useState(true);
   const [withUppercase, setWithUppercase] = useState(true);
@@ -19,6 +24,7 @@ export function PasswordGenerator({ onUse, onClose }: PasswordGeneratorProps) {
   async function generate() {
     try {
       const result = await generatePassword({
+        length,
         withNumber,
         withUppercase,
         withLowercase,
@@ -38,7 +44,26 @@ export function PasswordGenerator({ onUse, onClose }: PasswordGeneratorProps) {
       <div className="password-generator">
         <h2>Password Generator</h2>
 
-        <input readOnly value={password} placeholder="Generate a password" />
+        <input
+          readOnly
+          value={password}
+          placeholder="Generate a password"
+        />
+
+        <div>
+          <label htmlFor="password-length">
+            Length: {length}
+          </label>
+
+          <input
+            id="password-length"
+            type="range"
+            min="4"
+            max="128"
+            value={length}
+            onChange={(e) => setLength(Number(e.target.value))}
+          />
+        </div>
 
         <div>
           <label>

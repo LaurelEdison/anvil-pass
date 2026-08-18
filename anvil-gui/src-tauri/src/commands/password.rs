@@ -9,6 +9,7 @@ pub fn generate_password(
     with_lowercase: Option<bool>,
     with_symbols: Option<bool>,
     with_extended_ascii: Option<bool>,
+    with_length: Option<usize>,
 ) -> PasswordResultDto {
     let mut generator = Generator::new();
 
@@ -27,6 +28,8 @@ pub fn generate_password(
     if let Some(v) = with_extended_ascii {
         generator.with_extended_ascii(v);
     }
-
+    if let Some(v) = with_length {
+        generator.with_length(v);
+    }
     password_to_password_dto(generator.generate())
 }
