@@ -8,9 +8,10 @@ import { EntryDetail } from "../components/EntryDetail";
 
 interface VaultPageProps {
 	onEditEntry: (entry: EntryDto) => void;
+	onCreateEntry: () => void;
 }
 
-export function VaultPage({ onEditEntry }: VaultPageProps) {
+export function VaultPage({ onEditEntry, onCreateEntry }: VaultPageProps) {
 	const [entries, setEntries] = useState<EntryDto[]>([]);
 	const [groups, setGroups] = useState<GroupDto[]>([]);
 	const [selectedEntry, setSelectedEntry] = useState<EntryDto | null>(null);
@@ -51,6 +52,7 @@ export function VaultPage({ onEditEntry }: VaultPageProps) {
 				entries={entries}
 				selectedEntry={selectedEntry}
 				onSelectEntry={setSelectedEntry}
+				onCreateEntry={onCreateEntry}
 			/>
 
 			<EntryDetail

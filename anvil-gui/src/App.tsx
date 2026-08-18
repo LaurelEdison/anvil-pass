@@ -9,8 +9,8 @@ import { EditEntryPage } from "./pages/EditEntryPage";
 type Page =
   | { type: "home" }
   | { type: "vault" }
-  | { type: "edit-entry"; entry: EntryDto };
-
+  | { type: "edit-entry"; entry: EntryDto }
+  | { type: "create-entry"; parent: string | null };
 function App() {
   const [page, setPage] = useState<Page>({
     type: "home",
@@ -31,6 +31,12 @@ function App() {
             setPage({
               type: "edit-entry",
               entry,
+            })
+          }
+          onCreateEntry={() =>
+            setPage({
+              type: "create-entry",
+              parent: null,
             })
           }
         />
