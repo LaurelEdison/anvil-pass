@@ -6,12 +6,14 @@ interface CreateEntryProps {
 	parent: string | null;
 	onCreated: () => void;
 	onCancel: () => void;
+	onDirty: () => void;
 }
 
 export function CreateEntry({
 	parent,
 	onCreated,
 	onCancel,
+	onDirty,
 }: CreateEntryProps) {
 	const [title, setTitle] = useState("");
 	const [username, setUsername] = useState("");
@@ -45,6 +47,7 @@ export function CreateEntry({
 				totp: totp || null,
 			});
 
+			onDirty();
 			onCreated();
 		} catch (error) {
 			setError(String(error));

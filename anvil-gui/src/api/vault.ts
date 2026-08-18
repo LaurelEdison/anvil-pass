@@ -19,3 +19,15 @@ export async function createVault(
     masterPassword,
   });
 }
+
+export async function saveVault(): Promise<void> {
+  await invoke("save_vault");
+}
+
+export async function clearVault(): Promise<void> {
+  await invoke("clear_vault");
+}
+
+export async function isDirty(): Promise<boolean> {
+  return await invoke<boolean>("is_dirty");
+}

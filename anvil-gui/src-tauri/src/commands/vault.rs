@@ -32,3 +32,47 @@ pub fn create_vault(
     guard.set_vault(vault, path.clone(), master_password)?;
     Ok(())
 }
+
+#[tauri::command]
+pub fn save_vault(state: State<'_, Mutex<AppState>>) -> Result<(), AppError> {
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+
+    let AppState {
+        vault,
+        master_password,
+        ..
+    } = &mut *guard;
+
+    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+
+    vault
+        .save(master_password)
+        .map_err(|e| AppError::VaultSave(e.to_string()))?;
+
+    Ok(())
+}
+#[tauri::command]
+pub fn clear_vault(state: State<'_, Mutex<AppState>>) -> Result<(), AppError> {
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+    guard.reset();
+    Ok(())
+}
+#[tauri::command]
+pub fn is_dirty(state: State<'_, Mutex<AppState>>) -> Result<bool, AppError> {
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+
+    let AppState {
+        vault,
+        master_password,
+        ..
+    } = &mut *guard;
+
+    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+    Ok(vault.dirty)
+}

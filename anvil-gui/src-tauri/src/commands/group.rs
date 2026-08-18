@@ -21,11 +21,7 @@ pub fn update_group(
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    let AppState { vault, .. } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
 
@@ -35,9 +31,6 @@ pub fn update_group(
         .update_group(group_id, update_group)
         .map_err(|e| AppError::GroupUpdate(e.to_string()))?;
 
-    vault
-        .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]
@@ -46,19 +39,12 @@ pub fn delete_group(state: State<'_, Mutex<AppState>>, group_id: Uuid) -> Result
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    let AppState { vault, .. } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
     vault
         .delete_group(group_id)
         .map_err(|e| AppError::GroupDelete(e.to_string()))?;
-    vault
-        .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]
@@ -73,11 +59,7 @@ pub fn create_group(
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    let AppState { vault, .. } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
     let new_group = NewGroup {
@@ -89,9 +71,6 @@ pub fn create_group(
     vault
         .add_group(new_group)
         .map_err(|e| AppError::GroupCreate(e.to_string()))?;
-    vault
-        .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]

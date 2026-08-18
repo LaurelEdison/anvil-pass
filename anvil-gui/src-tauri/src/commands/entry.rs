@@ -26,11 +26,7 @@ pub fn update_entry(
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    let AppState { vault, .. } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
 
@@ -47,10 +43,6 @@ pub fn update_entry(
         .update_entry(id, update_entry)
         .map_err(|e| EntryUpdate(e.to_string()))?;
 
-    vault
-        .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
-
     Ok(())
 }
 #[tauri::command]
@@ -59,19 +51,12 @@ pub fn delete_entry(state: State<'_, Mutex<AppState>>, entry_id: Uuid) -> Result
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    let AppState { vault, .. } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
     vault
         .delete_entry(entry_id)
         .map_err(|e| EntryDelete(e.to_string()))?;
-    vault
-        .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]
@@ -89,11 +74,7 @@ pub fn create_entry(
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    let AppState { vault, .. } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
     let new_entry = NewEntry {
@@ -108,9 +89,6 @@ pub fn create_entry(
     vault
         .add_entry(new_entry)
         .map_err(|e| EntryCreate(e.to_string()))?;
-    vault
-        .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
     Ok(())
 }
 #[tauri::command]

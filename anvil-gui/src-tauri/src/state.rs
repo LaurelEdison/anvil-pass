@@ -56,6 +56,12 @@ impl AppState {
             master_password: (String::new()),
         })
     }
+    pub fn reset(&mut self) -> Result<(), AppError> {
+        self.vault = None;
+        self.vault_path = None;
+        self.master_password = String::new();
+        Ok(())
+    }
     pub fn set_vault(
         &mut self,
         vault: Vault,

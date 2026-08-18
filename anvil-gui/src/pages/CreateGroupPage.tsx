@@ -5,12 +5,14 @@ interface CreateGroupPageProps {
 	parent: string | null;
 	onCreated: () => void;
 	onCancel: () => void;
+	onDirty: () => void;
 }
 
 export function CreateGroupPage({
 	parent,
 	onCreated,
 	onCancel,
+	onDirty,
 }: CreateGroupPageProps) {
 	const [name, setName] = useState("");
 	const [notes, setNotes] = useState("");
@@ -31,7 +33,7 @@ export function CreateGroupPage({
 				notes: notes || null,
 				parent,
 			});
-
+			onDirty();
 			onCreated();
 		} catch (error) {
 			setError(String(error));

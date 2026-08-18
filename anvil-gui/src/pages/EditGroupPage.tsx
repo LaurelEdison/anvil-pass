@@ -7,6 +7,7 @@ interface EditGroupPageProps {
 	onSaved: (group: GroupDto) => void;
 	onDeleted: () => void;
 	onCancel: () => void;
+	onDirty: () => void;
 }
 
 export function EditGroupPage({
@@ -14,6 +15,7 @@ export function EditGroupPage({
 	onSaved,
 	onDeleted,
 	onCancel,
+	onDirty,
 }: EditGroupPageProps) {
 	const [name, setName] = useState(group.name);
 	const [notes, setNotes] = useState(group.notes);
@@ -41,6 +43,7 @@ export function EditGroupPage({
 				notes,
 			});
 
+			onDirty();
 			onSaved({
 				...group,
 				name,
@@ -71,6 +74,7 @@ export function EditGroupPage({
 
 		try {
 			await deleteGroup(group.id);
+			onDirty();
 			onDeleted();
 		} catch (error) {
 			setError(String(error));

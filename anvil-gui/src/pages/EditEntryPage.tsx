@@ -6,11 +6,13 @@ import { PasswordGenerator } from "../components/PasswordGenerator";
 interface EditEntryPageProps {
 	entry: EntryDto;
 	onBack: () => void;
+	onDirty: () => void;
 }
 
 export function EditEntryPage({
 	entry,
 	onBack,
+	onDirty,
 }: EditEntryPageProps) {
 	const [title, setTitle] = useState(entry.title);
 	const [username, setUsername] = useState(entry.username);
@@ -52,7 +54,7 @@ export function EditEntryPage({
 				notes,
 				totp,
 			});
-
+			onDirty();
 			onBack();
 		} catch (error) {
 			setError(String(error));

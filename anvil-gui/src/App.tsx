@@ -10,6 +10,8 @@ import { CreateEntryPage } from "./pages/CreateEntryPage";
 import { CreateGroupPage } from "./pages/CreateGroupPage";
 import { EditGroupPage } from "./pages/EditGroupPage";
 import { CreateVaultPage } from "./pages/CreateVaultPage";
+import { TopBar } from "./components/TopBar";
+import { clearVault, saveVault } from "./api/vault";
 
 type Page =
   | { type: "home" }
@@ -25,9 +27,32 @@ function App() {
     type: "home",
   });
 
+  const [dirty, setDirty] = useState(false);
+
+  async function handleSave() {
+    try {
+      await saveVault();
+      setDirty(false);
+    } catch (error) {
+      console.error("Failed to save vault:", error);
+    }
+  }
+
+  async function handleLock() {
+    try {
+      await clearVault();
+
+      setDirty(false);
+      setPage({ type: "home" });
+    } catch (error) {
+      console.error("Failed to lock vault:", error);
+    }
+  }
+
   switch (page.type) {
     case "home":
       return (
+
         <HomePage
           onOpened={() => setPage({ type: "vault" })}
           onCreateVault={() => setPage({ type: "create-vault" })}
@@ -36,32 +61,39 @@ function App() {
 
     case "vault":
       return (
-        <VaultPage
-          onEditEntry={(entry) =>
-            setPage({
-              type: "edit-entry",
-              entry,
-            })
-          }
-          onCreateEntry={() =>
-            setPage({
-              type: "create-entry",
-              parent: null,
-            })
-          }
-          onCreateGroup={() =>
-            setPage({
-              type: "create-group",
-              parent: null,
-            })
-          }
-          onEditGroup={(group) =>
-            setPage({
-              type: "edit-group",
-              group,
-            })
-          }
-        />
+        <main>
+          <TopBar
+            dirty={dirty}
+            onSave={handleSave}
+            onLock={handleLock}
+          />
+          <VaultPage
+            onEditEntry={(entry) =>
+              setPage({
+                type: "edit-entry",
+                entry,
+              })
+            }
+            onCreateEntry={() =>
+              setPage({
+                type: "create-entry",
+                parent: null,
+              })
+            }
+            onCreateGroup={() =>
+              setPage({
+                type: "create-group",
+                parent: null,
+              })
+            }
+            onEditGroup={(group) =>
+              setPage({
+                type: "edit-group",
+                group,
+              })
+            }
+          />
+        </main>
       );
 
     case "create-entry":
@@ -70,6 +102,7 @@ function App() {
           parent={page.parent}
           onCreated={() => setPage({ type: "vault" })}
           onCancel={() => setPage({ type: "vault" })}
+          onDirty={() => setDirty(true)}
         />
       );
 
@@ -77,6 +110,7 @@ function App() {
       return (
         <EditEntryPage
           entry={page.entry}
+          onDirty={() => setDirty(true)}
           onBack={() => setPage({ type: "vault" })}
         />
       );
@@ -86,6 +120,7 @@ function App() {
         <CreateGroupPage
           parent={page.parent}
           onCreated={() => setPage({ type: "vault" })}
+          onDirty={() => setDirty(true)}
           onCancel={() => setPage({ type: "vault" })}
         />
       );
@@ -103,6 +138,7 @@ function App() {
         <EditGroupPage
           group={page.group}
           onSaved={() => setPage({ type: "vault" })}
+          onDirty={() => setDirty(true)}
           onDeleted={() => setPage({ type: "vault" })}
           onCancel={() => setPage({ type: "vault" })}
         />
