@@ -74,10 +74,10 @@ function App() {
                 entry,
               })
             }
-            onCreateEntry={() =>
+            onCreateEntry={(parent) =>
               setPage({
                 type: "create-entry",
-                parent: null,
+                parent,
               })
             }
             onCreateGroup={() =>
