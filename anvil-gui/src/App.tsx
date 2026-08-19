@@ -80,10 +80,10 @@ function App() {
                 parent,
               })
             }
-            onCreateGroup={() =>
+            onCreateGroup={(parent) =>
               setPage({
                 type: "create-group",
-                parent: null,
+                parent: parent,
               })
             }
             onEditGroup={(group) =>

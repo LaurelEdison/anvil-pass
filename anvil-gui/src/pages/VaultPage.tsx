@@ -9,7 +9,7 @@ import { EntryDetail } from "../components/EntryDetail";
 interface VaultPageProps {
 	onEditEntry: (entry: EntryDto) => void;
 	onCreateEntry: (parent: string | null) => void;
-	onCreateGroup: () => void;
+	onCreateGroup: (parent: string | null) => void;
 	onEditGroup: (group: GroupDto) => void;
 }
 
@@ -48,7 +48,7 @@ export function VaultPage({ onEditEntry, onCreateEntry, onCreateGroup, onEditGro
 				groups={groups}
 				selectedGroup={selectedGroup}
 				onSelectGroup={setSelectedGroup}
-				onCreateGroup={onCreateGroup}
+				onCreateGroup={onCreateGroup(selectedGroup)}
 				onEditGroup={onEditGroup}
 			/>
 
