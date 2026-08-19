@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use anvil_core::vault::groups::{NewGroup, UpdateGroup};
 use tauri::State;
@@ -11,7 +11,7 @@ use crate::{
 
 #[tauri::command]
 pub fn update_group(
-    state: State<'_, Arc<Mutex<AppState>>>,
+    state: State<'_, Mutex<AppState>>,
     group_id: Uuid,
     name: Option<String>,
     tags: Option<Vec<String>>,
@@ -34,10 +34,7 @@ pub fn update_group(
     Ok(())
 }
 #[tauri::command]
-pub fn delete_group(
-    state: State<'_, Arc<Mutex<AppState>>>,
-    group_id: Uuid,
-) -> Result<(), AppError> {
+pub fn delete_group(state: State<'_, Mutex<AppState>>, group_id: Uuid) -> Result<(), AppError> {
     let mut guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
@@ -52,7 +49,7 @@ pub fn delete_group(
 }
 #[tauri::command]
 pub fn create_group(
-    state: State<'_, Arc<Mutex<AppState>>>,
+    state: State<'_, Mutex<AppState>>,
     name: String,
     tags: Option<Vec<String>>,
     notes: Option<String>,
@@ -77,7 +74,7 @@ pub fn create_group(
     Ok(())
 }
 #[tauri::command]
-pub fn list_groups(state: State<'_, Arc<Mutex<AppState>>>) -> Result<Vec<GroupDto>, AppError> {
+pub fn list_groups(state: State<'_, Mutex<AppState>>) -> Result<Vec<GroupDto>, AppError> {
     let guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;

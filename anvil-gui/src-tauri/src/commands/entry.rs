@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use anvil_core::vault::entries::{NewEntry, UpdateEntry};
 use tauri::State;
@@ -13,7 +13,7 @@ use crate::{
 };
 #[tauri::command]
 pub fn update_entry(
-    state: State<'_, Arc<Mutex<AppState>>>,
+    state: State<'_, Mutex<AppState>>,
     id: Uuid,
     title: Option<String>,
     username: Option<String>,
@@ -46,10 +46,7 @@ pub fn update_entry(
     Ok(())
 }
 #[tauri::command]
-pub fn delete_entry(
-    state: State<'_, Arc<Mutex<AppState>>>,
-    entry_id: Uuid,
-) -> Result<(), AppError> {
+pub fn delete_entry(state: State<'_, Mutex<AppState>>, entry_id: Uuid) -> Result<(), AppError> {
     let mut guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
@@ -64,7 +61,7 @@ pub fn delete_entry(
 }
 #[tauri::command]
 pub fn create_entry(
-    state: State<'_, Arc<Mutex<AppState>>>,
+    state: State<'_, Mutex<AppState>>,
     parent: Option<Uuid>,
     title: Option<String>,
     username: Option<String>,
@@ -95,7 +92,7 @@ pub fn create_entry(
     Ok(())
 }
 #[tauri::command]
-pub fn list_entries(state: State<'_, Arc<Mutex<AppState>>>) -> Result<Vec<EntryDto>, AppError> {
+pub fn list_entries(state: State<'_, Mutex<AppState>>) -> Result<Vec<EntryDto>, AppError> {
     let guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
