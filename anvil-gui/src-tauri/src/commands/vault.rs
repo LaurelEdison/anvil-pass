@@ -9,7 +9,7 @@ use crate::state::{AppError, AppState};
 
 #[tauri::command]
 pub fn open_a_vault(
-    state: State<'_, Mutex<AppState>>,
+    state: State<'_, Arc<Mutex<AppState>>>,
     path: PathBuf,
     master_password: String,
 ) -> Result<(), AppError> {
@@ -23,7 +23,7 @@ pub fn open_a_vault(
 }
 #[tauri::command]
 pub fn create_vault(
-    state: State<'_, Mutex<AppState>>,
+    state: State<'_, Arc<Mutex<AppState>>>,
     path: PathBuf,
     master_password: String,
 ) -> Result<(), AppError> {
@@ -64,7 +64,7 @@ pub async fn save_vault(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), Ap
 }
 
 #[tauri::command]
-pub fn clear_vault(state: State<'_, Mutex<AppState>>) -> Result<(), AppError> {
+pub fn clear_vault(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), AppError> {
     let mut guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
@@ -72,7 +72,7 @@ pub fn clear_vault(state: State<'_, Mutex<AppState>>) -> Result<(), AppError> {
     Ok(())
 }
 #[tauri::command]
-pub fn is_dirty(state: State<'_, Mutex<AppState>>) -> Result<bool, AppError> {
+pub fn is_dirty(state: State<'_, Arc<Mutex<AppState>>>) -> Result<bool, AppError> {
     let mut guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
