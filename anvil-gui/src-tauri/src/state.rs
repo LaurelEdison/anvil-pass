@@ -1,14 +1,9 @@
-use std::{
-    path::PathBuf,
-    sync::{Mutex, MutexGuard},
-};
+use std::{path::PathBuf, sync::Mutex};
 
 use anvil_core::vault::Vault;
 
 use serde::Serialize;
 use thiserror::Error;
-
-use crate::state::AppError::PoisonedState;
 
 #[derive(Debug, Error, Serialize)]
 pub enum AppError {
@@ -18,6 +13,9 @@ pub enum AppError {
     GroupCreate(String),
     #[error("Failed to create entry: {0}")]
     GroupUpdate(String),
+
+    #[error("Failed to complete task: {0}")]
+    Task(String),
 
     #[error("Failed to create entry: {0}")]
     EntryCreate(String),

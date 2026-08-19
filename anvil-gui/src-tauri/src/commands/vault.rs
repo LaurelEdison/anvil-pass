@@ -1,4 +1,7 @@
-use std::{path::PathBuf, sync::Mutex};
+use std::{
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
 
 use tauri::State;
 
@@ -34,25 +37,32 @@ pub fn create_vault(
 }
 
 #[tauri::command]
-pub fn save_vault(state: State<'_, Mutex<AppState>>) -> Result<(), AppError> {
-    let mut guard = state
-        .lock()
-        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+pub async fn save_vault(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), AppError> {
+    let state = Arc::clone(&state);
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut guard = state
+            .lock()
+            .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+        let AppState {
+            vault,
+            master_password,
+            ..
+        } = &mut *guard;
 
-    vault
-        .save(master_password)
-        .map_err(|e| AppError::VaultSave(e.to_string()))?;
+        let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
 
-    Ok(())
+        vault
+            .save(master_password)
+            .map_err(|e| AppError::VaultSave(e.to_string()))?;
+
+        Ok(())
+    })
+    .await
+    .map_err(|e| AppError::Task(e.to_string()))?
 }
+
 #[tauri::command]
 pub fn clear_vault(state: State<'_, Mutex<AppState>>) -> Result<(), AppError> {
     let mut guard = state
