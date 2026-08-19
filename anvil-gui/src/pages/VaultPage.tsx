@@ -48,7 +48,7 @@ export function VaultPage({ onEditEntry, onCreateEntry, onCreateGroup, onEditGro
 				groups={groups}
 				selectedGroup={selectedGroup}
 				onSelectGroup={setSelectedGroup}
-				onCreateGroup={onCreateGroup(selectedGroup)}
+				onCreateGroup={() => onCreateGroup(selectedGroup)}
 				onEditGroup={onEditGroup}
 			/>
 
