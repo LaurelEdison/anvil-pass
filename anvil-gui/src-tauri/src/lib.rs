@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use crate::{
     commands::{
         entry::{create_entry, delete_entry, list_entries, update_entry},
@@ -15,10 +17,12 @@ mod state;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let state = Arc::new(Mutex::new(AppState::new()));
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .manage(AppState::new())
+        .manage(state)
         .invoke_handler(tauri::generate_handler![
             create_vault,
             open_a_vault,
