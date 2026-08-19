@@ -68,7 +68,7 @@ pub fn clear_vault(state: State<'_, Mutex<AppState>>) -> Result<(), AppError> {
     let mut guard = state
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
-    guard.reset();
+    guard.reset()?;
     Ok(())
 }
 #[tauri::command]
@@ -77,11 +77,7 @@ pub fn is_dirty(state: State<'_, Mutex<AppState>>) -> Result<bool, AppError> {
         .lock()
         .map_err(|e| AppError::StateLocked(e.to_string()))?;
 
-    let AppState {
-        vault,
-        master_password,
-        ..
-    } = &mut *guard;
+    let AppState { vault, .. } = &mut *guard;
 
     let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
     Ok(vault.dirty)

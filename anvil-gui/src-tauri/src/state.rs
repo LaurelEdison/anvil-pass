@@ -34,10 +34,6 @@ pub enum AppError {
     StateLocked(String),
     #[error("Vault not defined")]
     VaultNone,
-    #[error("State poisoned: {0}")]
-    PoisonedState(String),
-    #[error("Vault path not defined")]
-    NonePath,
 }
 
 pub struct AppState {
