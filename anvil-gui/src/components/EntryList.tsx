@@ -5,12 +5,14 @@ interface EntryListProps {
   selectedEntry: EntryDto | null;
   onSelectEntry: (entry: EntryDto) => void;
   onCreateEntry: () => void;
+  onDeleteEntry: (entry: EntryDto) => void;
 }
 
 export function EntryList({
   entries,
   onSelectEntry,
   onCreateEntry,
+  onDeleteEntry,
 }: EntryListProps) {
   return (
     <section className="entry-list">
@@ -23,13 +25,21 @@ export function EntryList({
       </div>
 
       {entries.map((entry) => (
-        <button
-          type="button"
-          key={entry.id}
-          onClick={() => onSelectEntry(entry)}
-        >
-          {entry.title || "Untitled"}
-        </button>
+        <div key={entry.id}>
+          <button
+            type="button"
+            onClick={() => onSelectEntry(entry)}
+          >
+            {entry.title || "Untitled"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDeleteEntry(entry)}
+          >
+            Delete
+          </button>
+        </div>
       ))}
     </section>
   );
