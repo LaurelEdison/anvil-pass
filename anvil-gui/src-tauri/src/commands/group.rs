@@ -6,7 +6,10 @@ use uuid::Uuid;
 
 use crate::{
     dto::{group_data_to_group_dto, GroupDto},
-    state::{AppError, AppState},
+    state::{
+        AppError::{self, GroupMove},
+        AppState,
+    },
 };
 
 #[tauri::command]
@@ -73,6 +76,26 @@ pub fn create_group(
         .map_err(|e| AppError::GroupCreate(e.to_string()))?;
     Ok(())
 }
+
+#[tauri::command]
+pub fn move_group(
+    state: State<'_, Mutex<AppState>>,
+    group_id: Uuid,
+    destination_id: Uuid,
+) -> Result<(), AppError> {
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+
+    let AppState { vault, .. } = &mut *guard;
+
+    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+    vault
+        .move_group(group_id, destination_id)
+        .map_err(|e| GroupMove(e.to_string()))?;
+    Ok(())
+}
+
 #[tauri::command]
 pub fn list_groups(state: State<'_, Mutex<AppState>>) -> Result<Vec<GroupDto>, AppError> {
     let guard = state

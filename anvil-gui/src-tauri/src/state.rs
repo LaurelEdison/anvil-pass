@@ -7,16 +7,17 @@ use thiserror::Error;
 
 #[derive(Debug, Error, Serialize)]
 pub enum AppError {
-    #[error("Failed to create entry: {0}")]
+    #[error("Failed to move group: {0}")]
+    GroupMove(String),
+    #[error("Failed to delete group: {0}")]
     GroupDelete(String),
-    #[error("Failed to create entry: {0}")]
+    #[error("Failed to create group: {0}")]
     GroupCreate(String),
-    #[error("Failed to create entry: {0}")]
+    #[error("Failed to update group: {0}")]
     GroupUpdate(String),
 
-    #[error("Failed to complete task: {0}")]
-    Task(String),
-
+    #[error("Failed to move entry: {0}")]
+    EntryMove(String),
     #[error("Failed to create entry: {0}")]
     EntryCreate(String),
     #[error("Failed to delete entry: {0}")]

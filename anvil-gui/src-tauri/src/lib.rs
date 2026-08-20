@@ -1,7 +1,7 @@
 use crate::{
     commands::{
-        entry::{create_entry, delete_entry, list_entries, update_entry},
-        group::{create_group, delete_group, list_groups, update_group},
+        entry::{create_entry, delete_entry, list_entries, move_entry, update_entry},
+        group::{create_group, delete_group, list_groups, move_group, update_group},
         password::generate_password,
         vault::{clear_vault, create_vault, is_dirty, open_a_vault, save_vault},
     },
@@ -24,11 +24,13 @@ pub fn run() {
             open_a_vault,
             create_entry,
             update_entry,
+            move_entry,
             delete_entry,
             list_entries,
             create_group,
             update_group,
             delete_group,
+            move_group,
             list_groups,
             generate_password,
             save_vault,

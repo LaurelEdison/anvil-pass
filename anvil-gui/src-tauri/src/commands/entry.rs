@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     dto::{entry_data_to_entry_dto, EntryDto},
     state::{
-        AppError::{self, EntryCreate, EntryDelete, EntryUpdate},
+        AppError::{self, EntryCreate, EntryDelete, EntryMove, EntryUpdate},
         AppState,
     },
 };
@@ -59,6 +59,26 @@ pub fn delete_entry(state: State<'_, Mutex<AppState>>, entry_id: Uuid) -> Result
         .map_err(|e| EntryDelete(e.to_string()))?;
     Ok(())
 }
+
+#[tauri::command]
+pub fn move_entry(
+    state: State<'_, Mutex<AppState>>,
+    entry_id: Uuid,
+    destination_id: Uuid,
+) -> Result<(), AppError> {
+    let mut guard = state
+        .lock()
+        .map_err(|e| AppError::StateLocked(e.to_string()))?;
+
+    let AppState { vault, .. } = &mut *guard;
+
+    let vault = vault.as_mut().ok_or(AppError::VaultNone)?;
+    vault
+        .move_entry(entry_id, destination_id)
+        .map_err(|e| EntryMove(e.to_string()))?;
+    Ok(())
+}
+
 #[tauri::command]
 pub fn create_entry(
     state: State<'_, Mutex<AppState>>,
