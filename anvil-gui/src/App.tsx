@@ -68,6 +68,7 @@ function App() {
             onLock={handleLock}
           />
           <VaultPage
+            onDirty={() => setDirty(true)}
             onEditEntry={(entry) =>
               setPage({
                 type: "edit-entry",

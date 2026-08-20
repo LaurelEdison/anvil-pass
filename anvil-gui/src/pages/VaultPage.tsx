@@ -12,6 +12,7 @@ interface VaultPageProps {
 	onCreateEntry: (parent: string | null) => void;
 	onCreateGroup: (parent: string | null) => void;
 	onEditGroup: (group: GroupDto) => void;
+	onDirty: () => void;
 }
 
 export function VaultPage({
@@ -19,6 +20,7 @@ export function VaultPage({
 	onCreateEntry,
 	onCreateGroup,
 	onEditGroup,
+	onDirty,
 }: VaultPageProps) {
 	const [entries, setEntries] = useState<EntryDto[]>([]);
 	const [groups, setGroups] = useState<GroupDto[]>([]);
@@ -63,6 +65,7 @@ export function VaultPage({
 			}
 
 			setDeleteTarget(null);
+			onDirty();
 		} catch (error) {
 			setError(String(error));
 		}
