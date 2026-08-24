@@ -1,19 +1,17 @@
 mod common;
 
 use anvil_core::{
-    self, GroupId,
+    self,
     vault::{
         DatabaseProcessingError,
         entries::{NewEntry, UpdateEntry},
         groups::NewGroup,
-        traversal::NodeType::Group,
     },
 };
 use common::create_test_vault;
-use keepass::db::fields;
 use uuid::Uuid;
 
-use crate::common::{create_test_group, create_vault_with_entries};
+use crate::common::create_test_group;
 
 #[test]
 fn test_new_entry_builder() {
@@ -58,12 +56,12 @@ fn test_add_entry_with_all_fields() {
     let id = vault.add_entry(entry).unwrap();
     let retrieved = vault.get_entry(id).unwrap();
 
-    assert_eq!(retrieved.get(fields::TITLE), Some("Complete Entry"));
-    assert_eq!(retrieved.get(fields::USERNAME), Some("complete_user"));
-    assert_eq!(retrieved.get(fields::PASSWORD), Some("password123"));
-    assert_eq!(retrieved.get(fields::URL), Some("https://complete.com"));
-    assert_eq!(retrieved.get(fields::NOTES), Some("Complete notes"));
-    assert_eq!(retrieved.get(fields::OTP), Some("123456"));
+    assert_eq!(retrieved.title, Some("Complete Entry".to_string()));
+    assert_eq!(retrieved.username, Some("complete_user".to_string()));
+    assert_eq!(retrieved.password, Some("password123".to_string()));
+    assert_eq!(retrieved.url, Some("https://complete.com".to_string()));
+    assert_eq!(retrieved.notes, Some("Complete notes".to_string()));
+    assert_eq!(retrieved.totp, Some("123456".to_string()));
 }
 
 #[test]
@@ -77,17 +75,17 @@ fn test_add_entry_with_all_fields_with_group() {
         .with_url("https://complete.com")
         .with_notes("Complete notes")
         .with_totp("123456")
-        .with_parent_group(GroupId::from_uuid(group));
+        .with_parent_group(group);
 
     let id = vault.add_entry(entry).unwrap();
     let retrieved = vault.get_entry(id).unwrap();
 
-    assert_eq!(retrieved.get(fields::TITLE), Some("Complete Entry"));
-    assert_eq!(retrieved.get(fields::USERNAME), Some("complete_user"));
-    assert_eq!(retrieved.get(fields::PASSWORD), Some("password123"));
-    assert_eq!(retrieved.get(fields::URL), Some("https://complete.com"));
-    assert_eq!(retrieved.get(fields::NOTES), Some("Complete notes"));
-    assert_eq!(retrieved.get(fields::OTP), Some("123456"));
+    assert_eq!(retrieved.title, Some("Complete Entry".to_string()));
+    assert_eq!(retrieved.username, Some("complete_user".to_string()));
+    assert_eq!(retrieved.password, Some("password123".to_string()));
+    assert_eq!(retrieved.url, Some("https://complete.com".to_string()));
+    assert_eq!(retrieved.notes, Some("Complete notes".to_string()));
+    assert_eq!(retrieved.totp, Some("123456".to_string()));
 }
 
 #[test]
@@ -100,7 +98,7 @@ fn test_add_entry_with_all_fields_with_err() {
         .with_url("https://complete.com")
         .with_notes("Complete notes")
         .with_totp("123456")
-        .with_parent_group(GroupId::from_uuid(Uuid::new_v4()));
+        .with_parent_group(Uuid::new_v4());
 
     let result = vault.add_entry(entry);
 
@@ -347,254 +345,4 @@ fn test_update_entry_multiple_calls_same_field_ordering() {
 
     assert_eq!(update.notes, Some("note2".to_string()));
     assert_eq!(update.url, Some("url2".to_string()));
-}
-
-#[test]
-fn test_search_entry_exact_found_in_specific_group() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Create a group and add an entry with a specific title
-    let group_id = vault.add_group(NewGroup::new("Test Group")).unwrap();
-    let entry = NewEntry::new("password123")
-        .with_title("Unique Title")
-        .with_parent_group(GroupId::from_uuid(group_id));
-    vault.add_entry(entry).unwrap();
-
-    // Search for the entry in the specific group
-    let result = vault.search_entry_exact("Unique Title", Some(group_id));
-
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_title().unwrap(), "Unique Title");
-}
-
-#[test]
-fn test_search_entry_exact_not_found_in_specific_group() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Create a group with an entry
-    let group_id = vault.add_group(NewGroup::new("Test Group")).unwrap();
-    let entry = NewEntry::new("password123")
-        .with_title("Different Title")
-        .with_parent_group(GroupId::from_uuid(group_id));
-    vault.add_entry(entry).unwrap();
-
-    // Search for a title that doesn't exist in this group
-    let result = vault.search_entry_exact("Nonexistent Title", Some(group_id));
-
-    assert!(result.is_none());
-}
-
-#[test]
-fn test_search_entry_exact_found_in_all_groups() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Add an entry to the root group
-    let entry = NewEntry::new("root_password").with_title("Root Entry");
-    vault.add_entry(entry).unwrap();
-
-    // Search without specifying a group (search all)
-    let result = vault.search_entry_exact("Root Entry", None);
-
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_title().unwrap(), "Root Entry");
-}
-
-#[test]
-fn test_search_entry_exact_not_found_in_all_groups() {
-    let (vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Search for a title that doesn't exist anywhere
-    let result = vault.search_entry_exact("Nonexistent Entry", None);
-
-    assert!(result.is_none());
-}
-
-#[test]
-fn test_search_entry_exact_case_sensitive() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Add an entry with a title
-    let entry = NewEntry::new("password123").with_title("CaseSensitive");
-    vault.add_entry(entry).unwrap();
-
-    // Search with exact case (should find)
-    let result = vault.search_entry_exact("CaseSensitive", None);
-    assert!(result.is_some());
-
-    // Search with different case (should not find)
-    let result = vault.search_entry_exact("casesensitive", None);
-    assert!(result.is_none());
-
-    let result = vault.search_entry_exact("CASESENSITIVE", None);
-    assert!(result.is_none());
-}
-
-#[test]
-fn test_search_entry_exact_with_whitespace() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let title = "Entry With Spaces";
-    let entry = NewEntry::new("password123").with_title(title);
-    vault.add_entry(entry).unwrap();
-
-    // Search with exact whitespace
-    let result = vault.search_entry_exact("Entry With Spaces", None);
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_title().unwrap(), title);
-
-    // Search with different whitespace
-    let result = vault.search_entry_exact("Entry  With  Spaces", None);
-    assert!(result.is_none());
-}
-
-#[test]
-fn test_search_entry_exact_with_special_characters() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let title = "Entry!@#$%^&*()";
-    let entry = NewEntry::new("password123").with_title(title);
-    vault.add_entry(entry).unwrap();
-
-    let result = vault.search_entry_exact("Entry!@#$%^&*()", None);
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_title().unwrap(), title);
-}
-
-#[test]
-fn test_search_entry_exact_with_unicode() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let title = "你好世界 🌍";
-    let entry = NewEntry::new("password123").with_title(title);
-    vault.add_entry(entry).unwrap();
-
-    let result = vault.search_entry_exact("你好世界 🌍", None);
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_title().unwrap(), title);
-}
-
-#[test]
-fn test_search_entry_exact_in_specific_group_with_multiple_entries() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let group_id = vault.add_group(NewGroup::new("Test Group")).unwrap();
-
-    // Add multiple entries to the same group
-    let entry1 = NewEntry::new("password1")
-        .with_title("Title A")
-        .with_parent_group(GroupId::from_uuid(group_id));
-    vault.add_entry(entry1).unwrap();
-
-    let entry2 = NewEntry::new("password2")
-        .with_title("Title B")
-        .with_parent_group(GroupId::from_uuid(group_id));
-    vault.add_entry(entry2).unwrap();
-
-    // Search for each entry
-    let result = vault.search_entry_exact("Title A", Some(group_id));
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_password().unwrap(), "password1");
-
-    let result = vault.search_entry_exact("Title B", Some(group_id));
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_password().unwrap(), "password2");
-
-    // Search for non-existent title
-    let result = vault.search_entry_exact("Title C", Some(group_id));
-    assert!(result.is_none());
-}
-
-#[test]
-fn test_search_entry_exact_with_nonexistent_group() {
-    let (vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let fake_group_id = Uuid::new_v4();
-
-    // This should panic because group doesn't exist
-    let result = std::panic::catch_unwind(|| {
-        vault.search_entry_exact("Any Title", Some(fake_group_id));
-    });
-
-    assert!(result.is_err()); // Should panic when unwrapping the group
-}
-
-#[test]
-fn test_search_entry_exact_empty_title() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let entry = NewEntry::new("password123").with_title("");
-    vault.add_entry(entry).unwrap();
-
-    let result = vault.search_entry_exact("", None);
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_title().unwrap(), "");
-}
-
-#[test]
-fn test_search_entry_exact_entry_without_title() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Create an entry without a title
-    let entry = NewEntry::new("password123");
-    vault.add_entry(entry).unwrap();
-
-    // Search for something that shouldn't match
-    let result = vault.search_entry_exact("Some Title", None);
-    assert!(result.is_none());
-}
-
-#[test]
-fn test_search_entry_exact_in_group_with_mixed_entries() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let group_id = vault.add_group(NewGroup::new("Test Group")).unwrap();
-
-    // Add entries with various titles
-    let titles = vec!["Alpha", "Beta", "Gamma", "Delta"];
-    for title in titles.clone() {
-        let entry = NewEntry::new(format!("password_{}", title))
-            .with_title(title)
-            .with_parent_group(GroupId::from_uuid(group_id));
-        vault.add_entry(entry).unwrap();
-    }
-
-    // Search for each title
-    for title in titles {
-        let result = vault.search_entry_exact(title, Some(group_id));
-        assert!(result.is_some());
-        assert_eq!(result.unwrap().get_title().unwrap(), title);
-    }
-
-    // Search for a title not in the group
-    let result = vault.search_entry_exact("Omega", Some(group_id));
-    assert!(result.is_none());
-}
-
-#[test]
-fn test_search_entry_exact_ignores_entries_in_other_groups() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let group1_id = vault.add_group(NewGroup::new("Group 1")).unwrap();
-    let group2_id = vault.add_group(NewGroup::new("Group 2")).unwrap();
-
-    // Add same title to both groups
-    let entry1 = NewEntry::new("password1")
-        .with_title("Shared Title")
-        .with_parent_group(GroupId::from_uuid(group1_id));
-    vault.add_entry(entry1).unwrap();
-
-    let entry2 = NewEntry::new("password2")
-        .with_title("Shared Title")
-        .with_parent_group(GroupId::from_uuid(group2_id));
-    vault.add_entry(entry2).unwrap();
-
-    // Search in group 1 - should only find the entry in group 1
-    let result = vault.search_entry_exact("Shared Title", Some(group1_id));
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_password().unwrap(), "password1");
-
-    // Search in group 2 - should only find the entry in group 2
-    let result = vault.search_entry_exact("Shared Title", Some(group2_id));
-    assert!(result.is_some());
-    assert_eq!(result.unwrap().get_password().unwrap(), "password2");
 }

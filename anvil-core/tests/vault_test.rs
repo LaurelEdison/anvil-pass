@@ -2,24 +2,21 @@ mod common;
 
 use anvil_core::{
     self,
-    vault::{
-        DatabaseProcessingError,
-        database::{create_vault, open_vault},
-        entries::NewEntry,
-    },
+    vault::{DatabaseProcessingError, database::open_vault, entries::NewEntry},
 };
-use keepass::db::fields;
 use std::{fs, path::PathBuf};
 use tempfile::tempdir;
 
+use crate::common::create_vault_weak_encrypt;
+
 #[test]
-fn test_create_vault() {
+fn test_create_vault_weak_encrypt() {
     let temp_dir = tempdir().unwrap();
     let path = temp_dir.path().join("new_vault.kdbx");
     let password = "test_password";
 
     // Create a new vault
-    let vault = create_vault(password, path.clone()).unwrap();
+    let vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     // Verify vault was created
     assert!(!vault.dirty);
@@ -32,12 +29,12 @@ fn test_create_vault() {
 }
 
 #[test]
-fn test_create_vault_and_add_entry() {
+fn test_create_vault_weak_encrypt_and_add_entry() {
     let temp_dir = tempdir().unwrap();
     let path = temp_dir.path().join("vault_with_entry.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     let entry = NewEntry::new("password123")
         .with_title("Test Entry")
@@ -48,9 +45,9 @@ fn test_create_vault_and_add_entry() {
 
     let reloaded = open_vault(password, path).unwrap();
     let retrieved = reloaded.get_entry(id).unwrap();
-    assert_eq!(retrieved.get(fields::TITLE), Some("Test Entry"));
-    assert_eq!(retrieved.get(fields::USERNAME), Some("testuser"));
-    assert_eq!(retrieved.get(fields::PASSWORD), Some("password123"));
+    assert_eq!(retrieved.title, Some("Test Entry".to_string()));
+    assert_eq!(retrieved.username, Some("testuser".to_string()));
+    assert_eq!(retrieved.password, Some("password123".to_string()));
 }
 
 #[test]
@@ -59,7 +56,7 @@ fn test_open_vault() {
     let path = temp_dir.path().join("test_open.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
     let entry = NewEntry::new("password123").with_title("Test Entry");
     vault.add_entry(entry).unwrap();
     vault.save(password).unwrap();
@@ -68,7 +65,7 @@ fn test_open_vault() {
 
     let entries = opened.list_entries();
     assert_eq!(entries.len(), 1);
-    assert_eq!(entries[0].get(fields::TITLE), Some("Test Entry"));
+    assert_eq!(entries[0].title, Some("Test Entry".to_string()));
 }
 
 #[test]
@@ -78,7 +75,7 @@ fn test_open_vault_wrong_password() {
     let correct_password = "correct_password";
     let wrong_password = "wrong_password";
 
-    let mut vault = create_vault(correct_password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(correct_password, path.clone()).unwrap();
     vault.save(correct_password).unwrap();
 
     let result = open_vault(wrong_password, path);
@@ -124,7 +121,7 @@ fn test_save_vault() {
     let path = temp_dir.path().join("test_save.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     let entry = NewEntry::new("password123").with_title("Test Entry");
     let id = vault.add_entry(entry).unwrap();
@@ -137,7 +134,7 @@ fn test_save_vault() {
 
     let reloaded = open_vault(password, path).unwrap();
     let retrieved = reloaded.get_entry(id).unwrap();
-    assert_eq!(retrieved.get(fields::TITLE), Some("Test Entry"));
+    assert_eq!(retrieved.title, Some("Test Entry".to_string()));
 }
 
 #[test]
@@ -146,7 +143,7 @@ fn test_save_only_when_dirty() {
     let path = temp_dir.path().join("test_dirty.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     // Save initially (should create file)
     vault.save(password).unwrap();
@@ -171,7 +168,7 @@ fn test_save_after_changes() {
     let path = temp_dir.path().join("test_changes.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     vault.save(password).unwrap();
     let metadata1 = fs::metadata(&path).unwrap();
@@ -200,7 +197,7 @@ fn test_save_atomic() {
     let temp_path = path.with_extension("tmp");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     let entry = NewEntry::new("password123").with_title("Test Entry");
     vault.add_entry(entry).unwrap();
@@ -220,7 +217,7 @@ fn test_save_overwrites_existing() {
     let path = temp_dir.path().join("test_overwrite.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     let entry1 = NewEntry::new("password1").with_title("Entry 1");
     vault.add_entry(entry1).unwrap();
@@ -238,18 +235,18 @@ fn test_save_overwrites_existing() {
 }
 
 #[test]
-fn test_create_vault_overwrites_existing() {
+fn test_create_vault_weak_encrypt_overwrites_existing() {
     let temp_dir = tempdir().unwrap();
     let path = temp_dir.path().join("test_create_overwrite.kdbx");
     let password1 = "password1";
     let password2 = "password2";
 
-    let mut vault1 = create_vault(password1, path.clone()).unwrap();
+    let mut vault1 = create_vault_weak_encrypt(password1, path.clone()).unwrap();
     let entry = NewEntry::new("password123").with_title("Entry 1");
     vault1.add_entry(entry).unwrap();
     vault1.save(password1).unwrap();
 
-    let _vault2 = create_vault(password2, path.clone()).unwrap();
+    let _vault2 = create_vault_weak_encrypt(password2, path.clone()).unwrap();
 
     let reloaded = open_vault(password2, path.clone()).unwrap();
     assert_eq!(reloaded.list_entries().len(), 0);
@@ -264,7 +261,7 @@ fn test_multiple_save_load_cycles() {
     let path = temp_dir.path().join("test_multiple_cycles.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
     let mut ids = Vec::new();
 
     for i in 0..5 {
@@ -276,10 +273,7 @@ fn test_multiple_save_load_cycles() {
 
         let reloaded = open_vault(password, path.clone()).unwrap();
         let retrieved = reloaded.get_entry(id).unwrap();
-        assert_eq!(
-            retrieved.get(fields::TITLE),
-            Some(format!("Entry {}", i).as_str())
-        );
+        assert_eq!(retrieved.title, Some(format!("Entry {}", i)));
         assert_eq!(vault.dirty, false);
     }
 
@@ -293,7 +287,7 @@ fn test_save_with_many_entries() {
     let path = temp_dir.path().join("test_many_entries.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     let count = 100;
     for i in 0..count {
@@ -313,7 +307,7 @@ fn test_save_preserves_entry_data() {
     let path = temp_dir.path().join("test_preserve_data.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     let entry = NewEntry::new("password123")
         .with_title("Full Entry")
@@ -327,21 +321,21 @@ fn test_save_preserves_entry_data() {
     let reloaded = open_vault(password, path).unwrap();
     let retrieved = reloaded.get_entry(id).unwrap();
 
-    assert_eq!(retrieved.get(fields::TITLE), Some("Full Entry"));
-    assert_eq!(retrieved.get(fields::USERNAME), Some("full_user"));
-    assert_eq!(retrieved.get(fields::PASSWORD), Some("password123"));
-    assert_eq!(retrieved.get(fields::URL), Some("https://full.com"));
-    assert_eq!(retrieved.get(fields::NOTES), Some("Full notes"));
-    assert_eq!(retrieved.get(fields::OTP), Some("123456"));
+    assert_eq!(retrieved.title, Some("Full Entry".to_string()));
+    assert_eq!(retrieved.username, Some("full_user".to_string()));
+    assert_eq!(retrieved.password, Some("password123".to_string()));
+    assert_eq!(retrieved.url, Some("https://full.com".to_string()));
+    assert_eq!(retrieved.notes, Some("Full notes".to_string()));
+    assert_eq!(retrieved.totp, Some("123456".to_string()));
 }
 
 #[test]
-fn test_create_vault_in_nonexistent_directory() {
+fn test_create_vault_weak_encrypt_in_nonexistent_directory() {
     let temp_dir = tempdir().unwrap();
     let nonexistent = temp_dir.path().join("nonexistent").join("vault.kdbx");
     let password = "test_password";
 
-    let result = create_vault(password, nonexistent);
+    let result = create_vault_weak_encrypt(password, nonexistent);
     assert!(result.is_err());
 }
 
@@ -352,7 +346,7 @@ fn test_vault_cleanup_on_drop() {
     let password = "test_password";
 
     {
-        let _vault = create_vault(password, path.clone()).unwrap();
+        let _vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
         // Vault goes out of scope
     }
 
@@ -366,7 +360,7 @@ fn test_save_with_readonly_directory() {
     let path = temp_dir.path().join("vault.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     // Make directory read-only
     #[cfg(unix)]
@@ -397,7 +391,7 @@ fn test_save_when_disk_full() {
     let path = temp_dir.path().join("vault.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     // Add a very large entry (try to trigger disk full)
     let large_password = "x".repeat(1024 * 1024 * 10); // 10MB
@@ -417,7 +411,7 @@ fn test_save_with_invalid_temp_file() {
     let path = temp_dir.path().join("vault.kdbx");
     let password = "test_password";
 
-    let mut vault = create_vault(password, path.clone()).unwrap();
+    let mut vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
 
     let entry = NewEntry::new("password123").with_title("Test Entry");
     vault.add_entry(entry).unwrap();

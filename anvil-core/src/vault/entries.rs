@@ -1,4 +1,4 @@
-use keepass::db::{Entry, EntryId, EntryMut, GroupId, fields};
+use keepass::db::{EntryId, EntryMut, GroupId, fields};
 use uuid::Uuid;
 
 use crate::vault::{
@@ -205,12 +205,5 @@ impl Vault {
             .remove();
         self.dirty = true;
         Ok(())
-    }
-
-    pub fn get_entries_by_group(&self, group_id: GroupId) -> Vec<Entry> {
-        self.database
-            .group(group_id)
-            .map(|g| g.entries().map(|e| e.clone()).collect())
-            .unwrap_or_default()
     }
 }

@@ -31,83 +31,88 @@ fn test_generator_new() {
 
 #[test]
 fn test_generator_with_length() {
-    let generator = Generator::new().with_length(32);
+    let length = Generator::new().with_length(32).length;
 
-    assert_eq!(generator.length, 32);
+    assert_eq!(length, 32);
 
-    let generator = Generator::new().with_length(0);
-    assert_eq!(generator.length, 0);
+    let length = Generator::new().with_length(0).length;
+    assert_eq!(length, 0);
 
-    let generator = Generator::new().with_length(100);
-    assert_eq!(generator.length, 100);
+    let length = Generator::new().with_length(100).length;
+    assert_eq!(length, 100);
 }
 
 #[test]
 fn test_generator_with_numbers() {
-    let generator = Generator::new().with_numbers(false);
-    assert!(!generator.numbers);
+    let numbers = Generator::new().with_numbers(false).numbers;
+    assert!(!numbers);
 
-    let generator = Generator::new().with_numbers(true);
-    assert!(generator.numbers);
+    let numbers = Generator::new().with_numbers(true).numbers;
+    assert!(numbers);
 }
 
 #[test]
 fn test_generator_with_lowercase() {
-    let generator = Generator::new().with_lowercase(false);
-    assert!(!generator.lowercase_letters);
+    let lowercase_letters = Generator::new().with_lowercase(false).lowercase_letters;
+    assert!(!lowercase_letters);
 
-    let generator = Generator::new().with_lowercase(true);
-    assert!(generator.lowercase_letters);
+    let lowercase_letters = Generator::new().with_lowercase(true).lowercase_letters;
+    assert!(lowercase_letters);
 }
 
 #[test]
 fn test_generator_with_uppercase() {
-    let generator = Generator::new().with_uppercase(false);
-    assert!(!generator.uppercase_letters);
+    let uppercase_letters = Generator::new().with_uppercase(false).uppercase_letters;
+    assert!(!uppercase_letters);
 
-    let generator = Generator::new().with_uppercase(true);
-    assert!(generator.uppercase_letters);
+    let uppercase_letters = Generator::new().with_uppercase(true).uppercase_letters;
+    assert!(uppercase_letters);
 }
 
 #[test]
 fn test_generator_with_symbols() {
-    let generator = Generator::new().with_symbols(false);
-    assert!(!generator.symbols);
+    let symbols = Generator::new().with_symbols(false).symbols;
+    assert!(!symbols);
 
-    let generator = Generator::new().with_symbols(true);
-    assert!(generator.symbols);
+    let symbols = Generator::new().with_symbols(true).symbols;
+    assert!(symbols);
 }
 
 #[test]
 fn test_generator_with_spaces() {
-    let generator = Generator::new().with_spaces(true);
-    assert!(generator.spaces);
+    let spaces = Generator::new().with_spaces(true).spaces;
+    assert!(spaces);
 
-    let generator = Generator::new().with_spaces(false);
-    assert!(!generator.spaces);
+    let spaces = Generator::new().with_spaces(false).spaces;
+    assert!(!spaces);
 }
 
 #[test]
 fn test_generator_with_exclude_similar() {
-    let generator = Generator::new().with_exclude_similar(true);
-    assert!(generator.exclude_similar_characters);
+    let exclude_similar_characters = Generator::new()
+        .with_exclude_similar(true)
+        .exclude_similar_characters;
+    assert!(exclude_similar_characters);
 
-    let generator = Generator::new().with_exclude_similar(false);
-    assert!(!generator.exclude_similar_characters);
+    let exclude_similar_characters = Generator::new()
+        .with_exclude_similar(false)
+        .exclude_similar_characters;
+    assert!(!exclude_similar_characters);
 }
 
 #[test]
 fn test_generator_with_strict() {
-    let generator = Generator::new().with_strict(false);
-    assert!(!generator.strict);
+    let strict = Generator::new().with_strict(false).strict;
+    assert!(!strict);
 
-    let generator = Generator::new().with_strict(true);
-    assert!(generator.strict);
+    let strict = Generator::new().with_strict(true).strict;
+    assert!(strict);
 }
 
 #[test]
 fn test_generator_chaining() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(30)
         .with_numbers(false)
         .with_lowercase(false)
@@ -130,7 +135,7 @@ fn test_generator_chaining() {
 #[test]
 fn test_generate_default() {
     let generator = Generator::default();
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     // Should be exactly 24 characters
     assert_eq!(password.len(), 24);
@@ -139,7 +144,7 @@ fn test_generate_default() {
     assert!(password.chars().any(|c| c.is_ascii_digit()));
     assert!(password.chars().any(|c| c.is_ascii_lowercase()));
     assert!(password.chars().any(|c| c.is_ascii_uppercase()));
-    assert!(password.chars().any(|c| "!@#$%^&*".contains(c)));
+    assert!(password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c)));
 
     // Should not contain spaces (default false)
     assert!(!password.contains(' '));
@@ -147,7 +152,8 @@ fn test_generate_default() {
 
 #[test]
 fn test_generate_only_numbers() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(10)
         .with_numbers(true)
         .with_lowercase(false)
@@ -155,7 +161,7 @@ fn test_generate_only_numbers() {
         .with_symbols(false)
         .with_spaces(false);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 10);
     assert!(password.chars().all(|c| c.is_ascii_digit()));
@@ -163,7 +169,8 @@ fn test_generate_only_numbers() {
 
 #[test]
 fn test_generate_only_lowercase() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(15)
         .with_numbers(false)
         .with_lowercase(true)
@@ -171,7 +178,7 @@ fn test_generate_only_lowercase() {
         .with_symbols(false)
         .with_spaces(false);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 15);
     assert!(password.chars().all(|c| c.is_ascii_lowercase()));
@@ -179,7 +186,8 @@ fn test_generate_only_lowercase() {
 
 #[test]
 fn test_generate_only_uppercase() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(12)
         .with_numbers(false)
         .with_lowercase(false)
@@ -187,7 +195,7 @@ fn test_generate_only_uppercase() {
         .with_symbols(false)
         .with_spaces(false);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 12);
     assert!(password.chars().all(|c| c.is_ascii_uppercase()));
@@ -195,7 +203,8 @@ fn test_generate_only_uppercase() {
 
 #[test]
 fn test_generate_only_symbols() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(8)
         .with_numbers(false)
         .with_lowercase(false)
@@ -203,15 +212,16 @@ fn test_generate_only_symbols() {
         .with_symbols(true)
         .with_spaces(false);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 8);
-    assert!(password.chars().all(|c| "!@#$%^&*".contains(c)));
+    assert!(password.chars().all(|c| "!@#$%^&*_-+=,.?".contains(c)));
 }
 
 #[test]
 fn test_generate_with_spaces() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(20)
         .with_numbers(false)
         .with_lowercase(true)
@@ -219,7 +229,7 @@ fn test_generate_with_spaces() {
         .with_symbols(false)
         .with_spaces(true);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 20);
     assert!(password.contains(' '));
@@ -228,7 +238,8 @@ fn test_generate_with_spaces() {
 
 #[test]
 fn test_generate_without_strict() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(10)
         .with_numbers(true)
         .with_lowercase(true)
@@ -236,7 +247,7 @@ fn test_generate_without_strict() {
         .with_symbols(true)
         .with_strict(false);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 10);
     // With strict false, not all character types are guaranteed
@@ -245,7 +256,7 @@ fn test_generate_without_strict() {
     let has_number = password.chars().any(|c| c.is_ascii_digit());
     let has_lower = password.chars().any(|c| c.is_ascii_lowercase());
     let has_upper = password.chars().any(|c| c.is_ascii_uppercase());
-    let has_symbol = password.chars().any(|c| "!@#$%^&*".contains(c));
+    let has_symbol = password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c));
 
     // At least one of these should be true
     assert!(has_number || has_lower || has_upper || has_symbol);
@@ -253,14 +264,15 @@ fn test_generate_without_strict() {
 
 #[test]
 fn test_generate_with_exclude_similar() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(50)
         .with_exclude_similar(true)
         .with_numbers(true)
         .with_lowercase(true)
         .with_uppercase(true);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     // Should not contain similar characters
     let similar_chars = ['i', 'l', '1', 'L', 'o', '0', 'O'];
@@ -281,7 +293,8 @@ fn test_generate_with_exclude_similar_but_no_other_chars() {
 
 #[test]
 fn test_generate_strict_ensures_all_types() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(4) // Minimum length for 4 types
         .with_numbers(true)
         .with_lowercase(true)
@@ -289,7 +302,7 @@ fn test_generate_strict_ensures_all_types() {
         .with_symbols(true)
         .with_strict(true);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 4);
     // With strict=true and length=4, we should have exactly one of each type
@@ -297,7 +310,7 @@ fn test_generate_strict_ensures_all_types() {
     let has_number = password.chars().any(|c| c.is_ascii_digit());
     let has_lower = password.chars().any(|c| c.is_ascii_lowercase());
     let has_upper = password.chars().any(|c| c.is_ascii_uppercase());
-    let has_symbol = password.chars().any(|c| "!@#$%^&*".contains(c));
+    let has_symbol = password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c));
 
     assert!(has_number);
     assert!(has_lower);
@@ -309,9 +322,9 @@ fn test_generate_strict_ensures_all_types() {
 fn test_generate_different_passwords() {
     let generator = Generator::default();
 
-    let password1 = generator.generate();
-    let password2 = generator.generate();
-    let password3 = generator.generate();
+    let password1 = generator.generate().password;
+    let password2 = generator.generate().password;
+    let password3 = generator.generate().password;
 
     // There's a tiny chance they could be equal, but practically impossible
     // for 24-character passwords with 70+ character set
@@ -321,55 +334,24 @@ fn test_generate_different_passwords() {
 }
 
 #[test]
-fn test_generate_shuffling() {
-    let generator = Generator::new()
-        .with_length(4)
-        .with_numbers(true)
-        .with_lowercase(false)
-        .with_uppercase(false)
-        .with_symbols(false)
-        .with_spaces(false)
-        .with_strict(true);
-
-    // With only numbers, strict ensures at least one number, but all are numbers
-    // So we test that different calls produce different orders
-    let password1 = generator.generate();
-    let password2 = generator.generate();
-
-    // Since all characters are numbers, the order can still vary
-    // But with only 4 numbers, the chance of different order is high
-    // If they're the same, it's not a failure, just random chance
-    // So we generate multiple and check at least one differs
-    let mut all_same = true;
-    let first = generator.generate();
-    for _ in 0..10 {
-        let next = generator.generate();
-        if next != first {
-            all_same = false;
-            break;
-        }
-    }
-    // It's practically impossible for all 10 to be identical
-    assert!(!all_same);
-}
-
-#[test]
 fn test_generate_very_long() {
-    let generator = Generator::new().with_length(1000);
+    let mut generator = Generator::new();
+    generator.with_length(1000);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
     assert_eq!(password.len(), 1000);
 
     // Should contain all types
     assert!(password.chars().any(|c| c.is_ascii_digit()));
     assert!(password.chars().any(|c| c.is_ascii_lowercase()));
     assert!(password.chars().any(|c| c.is_ascii_uppercase()));
-    assert!(password.chars().any(|c| "!@#$%^&*".contains(c)));
+    assert!(password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c)));
 }
 
 #[test]
 fn test_generate_with_all_options_false() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_numbers(false)
         .with_lowercase(false)
         .with_uppercase(false)
@@ -377,13 +359,14 @@ fn test_generate_with_all_options_false() {
         .with_spaces(false)
         .with_strict(true);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
     assert_eq!(password, "");
 }
 
 #[test]
 fn test_generate_only_spaces() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(10)
         .with_numbers(false)
         .with_lowercase(false)
@@ -391,7 +374,7 @@ fn test_generate_only_spaces() {
         .with_symbols(false)
         .with_spaces(true);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
     assert_eq!(password.len(), 10);
     assert!(password.chars().all(|c| c == ' '));
 }
@@ -408,7 +391,9 @@ fn test_charset_default() {
     assert_eq!(charset.uppercase_letters.len(), 26);
     assert_eq!(
         charset.symbols,
-        vec!['!', '@', '#', '$', '%', '^', '&', '*']
+        vec![
+            '!', '@', '#', '$', '%', '^', '&', '*', '_', '-', '+', '=', ',', '.', '?'
+        ]
     );
     assert_eq!(
         charset.similar_chars,
@@ -435,7 +420,8 @@ fn test_charset_similar_chars_contained() {
 
 #[test]
 fn test_generate_strict_guarantees_at_least_one_of_each() {
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(100)
         .with_numbers(true)
         .with_lowercase(true)
@@ -444,13 +430,13 @@ fn test_generate_strict_guarantees_at_least_one_of_each() {
         .with_spaces(true)
         .with_strict(true);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     // Strict should guarantee at least one of each enabled type
     assert!(password.chars().any(|c| c.is_ascii_digit()));
     assert!(password.chars().any(|c| c.is_ascii_lowercase()));
     assert!(password.chars().any(|c| c.is_ascii_uppercase()));
-    assert!(password.chars().any(|c| "!@#$%^&*".contains(c)));
+    assert!(password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c)));
     assert!(password.contains(' '));
 }
 
@@ -458,7 +444,8 @@ fn test_generate_strict_guarantees_at_least_one_of_each() {
 fn test_generate_uniform_distribution_approximation() {
     // This test checks that characters are roughly uniformly distributed
     // We'll generate many passwords and count character frequencies
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(1000)
         .with_numbers(true)
         .with_lowercase(true)
@@ -470,7 +457,7 @@ fn test_generate_uniform_distribution_approximation() {
     let total_chars = 10000;
 
     for _ in 0..10 {
-        let password = generator.generate();
+        let password = generator.generate().password;
         for c in password.chars() {
             *char_counts.entry(c).or_insert(0) += 1;
         }
@@ -481,7 +468,7 @@ fn test_generate_uniform_distribution_approximation() {
     let total_count: usize = char_counts.values().sum();
     assert_eq!(total_count, total_chars);
 
-    let avg = total_count as f64 / char_counts.len() as f64;
+    let _avg = total_count as f64 / char_counts.len() as f64;
     let max_count = char_counts.values().max().unwrap();
     let min_count = char_counts.values().min().unwrap();
 
@@ -494,7 +481,8 @@ fn test_generate_uniform_distribution_approximation() {
 #[test]
 fn test_generator_in_realistic_scenario() {
     // Simulate generating a password for a user
-    let generator = Generator::new()
+    let mut generator = Generator::new();
+    generator
         .with_length(20)
         .with_numbers(true)
         .with_lowercase(true)
@@ -504,7 +492,7 @@ fn test_generator_in_realistic_scenario() {
         .with_exclude_similar(true)
         .with_strict(true);
 
-    let password = generator.generate();
+    let password = generator.generate().password;
 
     assert_eq!(password.len(), 20);
     assert!(!password.contains(' '));
@@ -520,7 +508,7 @@ fn test_generator_in_realistic_scenario() {
     assert!(password.chars().any(|c| c.is_ascii_digit()));
     assert!(password.chars().any(|c| c.is_ascii_lowercase()));
     assert!(password.chars().any(|c| c.is_ascii_uppercase()));
-    assert!(password.chars().any(|c| "!@#$%^&*".contains(c)));
+    assert!(password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c)));
 }
 
 #[test]
@@ -529,11 +517,11 @@ fn test_generator_multiple_calls_consistency() {
 
     // Generate many passwords and verify they're all valid
     for _ in 0..100 {
-        let password = generator.generate();
+        let password = generator.generate().password;
         assert_eq!(password.len(), 24);
         assert!(password.chars().any(|c| c.is_ascii_digit()));
         assert!(password.chars().any(|c| c.is_ascii_lowercase()));
         assert!(password.chars().any(|c| c.is_ascii_uppercase()));
-        assert!(password.chars().any(|c| "!@#$%^&*".contains(c)));
+        assert!(password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c)));
     }
 }

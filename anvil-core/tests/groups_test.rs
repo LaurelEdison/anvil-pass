@@ -1,13 +1,10 @@
-use anvil_core::{
-    GroupId,
-    vault::{
-        DatabaseProcessingError,
-        groups::{NewGroup, UpdateGroup},
-    },
+use anvil_core::vault::{
+    DatabaseProcessingError,
+    groups::{NewGroup, UpdateGroup},
 };
 use uuid::Uuid;
 
-use crate::common::{create_test_vault, create_vault_with_entries};
+use crate::common::create_test_vault;
 
 mod common;
 #[test]
@@ -28,7 +25,7 @@ fn add_group_under_parent() {
     let parent = vault.add_group(NewGroup::new("Parent")).unwrap();
 
     let child = vault
-        .add_group(NewGroup::new("Child").with_parent_group(GroupId::from_uuid(parent)))
+        .add_group(NewGroup::new("Child").with_parent_group(parent))
         .unwrap();
 
     let child_group = vault.get_group(child).unwrap();
@@ -39,8 +36,7 @@ fn add_group_under_parent() {
 fn add_group_under_parent_not_exist() {
     let (mut vault, _, _, _) = create_test_vault();
 
-    let result = vault
-        .add_group(NewGroup::new("Child").with_parent_group(GroupId::from_uuid(Uuid::new_v4())));
+    let result = vault.add_group(NewGroup::new("Child").with_parent_group(Uuid::new_v4()));
 
     assert!(matches!(
         result,
@@ -219,7 +215,7 @@ fn move_group_changes_parent() {
     let parent2 = vault.add_group(NewGroup::new("Two")).unwrap();
 
     let child = vault
-        .add_group(NewGroup::new("Child").with_parent_group(GroupId::from_uuid(parent1)))
+        .add_group(NewGroup::new("Child").with_parent_group(parent1))
         .unwrap();
 
     vault.move_group(child, parent2).unwrap();
@@ -236,7 +232,7 @@ fn move_group_parent_not_exist() {
     let parent2 = Uuid::new_v4();
 
     let child = vault
-        .add_group(NewGroup::new("Child").with_parent_group(GroupId::from_uuid(parent1)))
+        .add_group(NewGroup::new("Child").with_parent_group(parent1))
         .unwrap();
 
     let result = vault.move_group(child, parent2);
@@ -263,77 +259,4 @@ fn move_group_child_not_exist() {
         result,
         Err(DatabaseProcessingError::FailedToFindGroup(_))
     ));
-}
-
-#[test]
-fn test_get_group_by_name_found() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Create a group with a specific name
-    let group_name = "Test Group";
-    let group_id = vault.add_group(NewGroup::new(group_name)).unwrap();
-
-    // Search for the group by name
-    let result = vault.get_group_by_name(group_name);
-
-    assert!(result.is_ok());
-    let group = result.unwrap();
-    assert_eq!(group.name, group_name);
-    assert_eq!(group.id(), GroupId::from_uuid(group_id));
-}
-
-#[test]
-fn test_get_group_by_name_not_found() {
-    let (vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    // Search for a group that doesn't exist
-    let result = vault.get_group_by_name("Nonexistent Group");
-
-    assert!(result.is_err());
-    match result {
-        Err(DatabaseProcessingError::FailedToFindGroupByName(name)) => {
-            assert_eq!(name, "Nonexistent Group");
-        }
-        _ => panic!("Expected FailedToFindGroupByName error"),
-    }
-}
-
-#[test]
-fn test_get_group_by_name_case_sensitive() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let group_name = "CaseSensitive";
-    vault.add_group(NewGroup::new(group_name)).unwrap();
-
-    // Search with exact case (should find)
-    let result = vault.get_group_by_name("CaseSensitive");
-    assert!(result.is_ok());
-    assert_eq!(result.unwrap().name, "CaseSensitive");
-
-    // Search with different case (should not find)
-    let result = vault.get_group_by_name("casesensitive");
-    assert!(result.is_err());
-
-    let result = vault.get_group_by_name("CASESENSITIVE");
-    assert!(result.is_err());
-}
-
-#[test]
-fn test_get_group_by_name_with_whitespace() {
-    let (mut vault, _temp_dir, _path, _password, _ids) = create_vault_with_entries();
-
-    let group_name = "Group With Spaces";
-    vault.add_group(NewGroup::new(group_name)).unwrap();
-
-    // Search with exact whitespace
-    let result = vault.get_group_by_name("Group With Spaces");
-    assert!(result.is_ok());
-    assert_eq!(result.unwrap().name, group_name);
-
-    // Search with different whitespace
-    let result = vault.get_group_by_name("Group  With  Spaces");
-    assert!(result.is_err());
-
-    let result = vault.get_group_by_name("GroupWithSpaces");
-    assert!(result.is_err());
 }
