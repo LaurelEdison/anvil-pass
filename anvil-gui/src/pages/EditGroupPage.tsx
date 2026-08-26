@@ -3,139 +3,131 @@ import type { GroupDto } from "../types/types";
 import { updateGroup, deleteGroup } from "../api/group";
 
 interface EditGroupPageProps {
-	group: GroupDto;
-	onSaved: (group: GroupDto) => void;
-	onDeleted: () => void;
-	onCancel: () => void;
-	onDirty: () => void;
+  group: GroupDto;
+  onSaved: (group: GroupDto) => void;
+  onDeleted: () => void;
+  onCancel: () => void;
+  onDirty: () => void;
 }
 
 export function EditGroupPage({
-	group,
-	onSaved,
-	onDeleted,
-	onCancel,
-	onDirty,
+  group,
+  onSaved,
+  onDeleted,
+  onCancel,
+  onDirty,
 }: EditGroupPageProps) {
-	const [name, setName] = useState(group.name);
-	const [notes, setNotes] = useState(group.notes);
+  const [name, setName] = useState(group.name);
+  const [notes, setNotes] = useState(group.notes);
 
-	const [saving, setSaving] = useState(false);
-	const [deleting, setDeleting] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-	const changed =
-		name !== group.name ||
-		notes !== group.notes;
+  const changed = name !== group.name || notes !== group.notes;
 
-	async function handleSave() {
-		if (!changed || saving || deleting) {
-			return;
-		}
+  async function handleSave() {
+    if (!changed || saving || deleting) {
+      return;
+    }
 
-		setSaving(true);
-		setError(null);
+    setSaving(true);
+    setError(null);
 
-		try {
-			await updateGroup({
-				groupId: group.id,
-				name,
-				notes,
-			});
+    try {
+      await updateGroup({
+        groupId: group.id,
+        name,
+        notes,
+      });
 
-			onDirty();
-			onSaved({
-				...group,
-				name,
-				notes,
-			});
-		} catch (error) {
-			setError(String(error));
-		} finally {
-			setSaving(false);
-		}
-	}
+      onDirty();
+      onSaved({
+        ...group,
+        name,
+        notes,
+      });
+    } catch (error) {
+      setError(String(error));
+    } finally {
+      setSaving(false);
+    }
+  }
 
-	async function handleDelete() {
-		if (deleting || saving) {
-			return;
-		}
+  async function handleDelete() {
+    if (deleting || saving) {
+      return;
+    }
 
-		const confirmed = window.confirm(
-			`Delete group "${group.name}"?`,
-		);
+    const confirmed = window.confirm(`Delete group "${group.name}"?`);
 
-		if (!confirmed) {
-			return;
-		}
+    if (!confirmed) {
+      return;
+    }
 
-		setDeleting(true);
-		setError(null);
+    setDeleting(true);
+    setError(null);
 
-		try {
-			await deleteGroup(group.id);
-			onDirty();
-			onDeleted();
-		} catch (error) {
-			setError(String(error));
-		} finally {
-			setDeleting(false);
-		}
-	}
+    try {
+      await deleteGroup(group.id);
+      onDirty();
+      onDeleted();
+    } catch (error) {
+      setError(String(error));
+    } finally {
+      setDeleting(false);
+    }
+  }
 
-	return (
-		<main className="edit-group-page">
-			<h2>Edit Group</h2>
+  return (
+    <main className="edit-group-page">
+      <h2>Edit Group</h2>
 
-			<div>
-				<label htmlFor="group-name">Name</label>
+      <div>
+        <label htmlFor="group-name">Name</label>
 
-				<input
-					id="group-name"
-					value={name}
-					onChange={(e) => setName(e.target.value)}
-				/>
-			</div>
+        <input
+          id="group-name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
 
-			<div>
-				<label htmlFor="group-notes">Notes</label>
+      <div>
+        <label htmlFor="group-notes">Notes</label>
 
-				<textarea
-					id="group-notes"
-					value={notes}
-					onChange={(e) => setNotes(e.target.value)}
-				/>
-			</div>
+        <textarea
+          id="group-notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </div>
 
-			{error && <p>{error}</p>}
+      {error && <p>{error}</p>}
 
-			<div>
-				<button
-					type="button"
-					disabled={saving || deleting}
-					onClick={onCancel}
-				>
-					Cancel
-				</button>
+      <div>
+        <button type="button" disabled={saving || deleting} onClick={onCancel}>
+          Cancel
+        </button>
 
-				<button
-					type="button"
-					disabled={!changed || saving || deleting}
-					onClick={handleSave}
-				>
-					{saving ? "Saving..." : "Save"}
-				</button>
-			</div>
+        <button
+          type="button"
+          disabled={!changed || saving || deleting}
+          onClick={handleSave}
+        >
+          {saving ? "Saving..." : "Save"}
+        </button>
+      </div>
 
-			<div>
-				<button
-					type="button"
-					disabled={saving || deleting}
-					onClick={handleDelete}
-				>
-					{deleting ? "Deleting..." : "Delete Group"}
-				</button>
-			</div>
-		</main>
-	);
+      <div>
+        <button
+          type="button"
+          disabled={saving || deleting}
+          onClick={handleDelete}
+        >
+          {deleting ? "Deleting..." : "Delete Group"}
+        </button>
+      </div>
+    </main>
+  );
 }

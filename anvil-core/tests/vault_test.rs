@@ -2,7 +2,11 @@ mod common;
 
 use anvil_core::{
     self,
-    vault::{DatabaseProcessingError, database::open_vault, entries::NewEntry},
+    vault::{
+        DatabaseProcessingError,
+        database::{create_vault, open_vault},
+        entries::NewEntry,
+    },
 };
 use std::{fs, path::PathBuf};
 use tempfile::tempdir;
@@ -10,13 +14,13 @@ use tempfile::tempdir;
 use crate::common::create_vault_weak_encrypt;
 
 #[test]
-fn test_create_vault_weak_encrypt() {
+fn test_create() {
     let temp_dir = tempdir().unwrap();
     let path = temp_dir.path().join("new_vault.kdbx");
     let password = "test_password";
 
     // Create a new vault
-    let vault = create_vault_weak_encrypt(password, path.clone()).unwrap();
+    let vault = create_vault(password, path.clone()).unwrap();
 
     // Verify vault was created
     assert!(!vault.dirty);

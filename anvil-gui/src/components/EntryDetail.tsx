@@ -90,16 +90,10 @@ export function EntryDetail({ entry, onEdit }: EntryDetailProps) {
           <div>
             <p>{entry.url}</p>
 
-            <button
-              type="button"
-              onClick={() => copyToClipboard(entry.url)}
-            >
+            <button type="button" onClick={() => copyToClipboard(entry.url)}>
               Copy
             </button>
-            <button
-              type="button"
-              onClick={() => openUrlInBrowser(entry.url)}
-            >
+            <button type="button" onClick={() => openUrlInBrowser(entry.url)}>
               Open
             </button>
           </div>

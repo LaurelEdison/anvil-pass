@@ -419,6 +419,22 @@ fn test_charset_similar_chars_contained() {
 }
 
 #[test]
+fn test_charset_extended_ascii() {
+    let mut charset = Charset::default();
+    charset.populate_extended_ascii();
+
+    // Verify similar chars are actually in the character sets
+    for &c in &charset.extended_ascii {
+        let extended_ascii = charset.extended_ascii.contains(&c);
+        assert!(
+            extended_ascii,
+            "Extended ascii char '{}' not found in any character set",
+            c
+        );
+    }
+}
+
+#[test]
 fn test_generate_strict_guarantees_at_least_one_of_each() {
     let mut generator = Generator::new();
     generator

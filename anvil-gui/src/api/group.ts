@@ -26,3 +26,10 @@ export async function deleteGroup(groupId: string): Promise<void> {
 export async function listGroups(): Promise<GroupDto[]> {
   return invoke<GroupDto[]>("list_groups");
 }
+
+export async function moveGroup(data: {
+  groupId: string;
+  destinationId: string;
+}): Promise<void> {
+  return invoke("move_group", data);
+}

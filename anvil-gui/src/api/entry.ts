@@ -32,3 +32,10 @@ export async function updateEntry(data: {
 export async function deleteEntry(entryId: string): Promise<void> {
   await invoke("delete_entry", { entryId });
 }
+
+export async function moveEntry(data: {
+  entryId: string;
+  destinationId: string;
+}): Promise<void> {
+  await invoke("delete_entry", data);
+}

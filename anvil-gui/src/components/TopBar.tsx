@@ -1,34 +1,23 @@
 interface TopBarProps {
-	dirty: boolean;
-	onSave: () => void;
-	onLock: () => void;
+  dirty: boolean;
+  onSave: () => void;
+  onLock: () => void;
 }
 
-export function TopBar({
-	dirty,
-	onSave,
-	onLock,
-}: TopBarProps) {
-	return (
-		<header className="top-bar">
-			<strong>Anvil</strong>
+export function TopBar({ dirty, onSave, onLock }: TopBarProps) {
+  return (
+    <header className="top-bar">
+      <strong>Anvil</strong>
 
-			<div>
-				<button
-					type="button"
-					disabled={!dirty}
-					onClick={onSave}
-				>
-					{dirty ? "Save*" : "Save"}
-				</button>
+      <div>
+        <button type="button" disabled={!dirty} onClick={onSave}>
+          {dirty ? "Save*" : "Save"}
+        </button>
 
-				<button
-					type="button"
-					onClick={onLock}
-				>
-					Lock
-				</button>
-			</div>
-		</header>
-	);
+        <button type="button" onClick={onLock}>
+          Lock
+        </button>
+      </div>
+    </header>
+  );
 }

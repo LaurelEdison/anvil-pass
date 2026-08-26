@@ -26,17 +26,11 @@ export function EntryList({
 
       {entries.map((entry) => (
         <div key={entry.id}>
-          <button
-            type="button"
-            onClick={() => onSelectEntry(entry)}
-          >
+          <button type="button" onClick={() => onSelectEntry(entry)}>
             {entry.title || "Untitled"}
           </button>
 
-          <button
-            type="button"
-            onClick={() => onDeleteEntry(entry)}
-          >
+          <button type="button" onClick={() => onDeleteEntry(entry)}>
             Delete
           </button>
         </div>

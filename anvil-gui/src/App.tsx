@@ -52,7 +52,6 @@ function App() {
   switch (page.type) {
     case "home":
       return (
-
         <HomePage
           onOpened={() => setPage({ type: "vault" })}
           onCreateVault={() => setPage({ type: "create-vault" })}
@@ -62,11 +61,7 @@ function App() {
     case "vault":
       return (
         <main>
-          <TopBar
-            dirty={dirty}
-            onSave={handleSave}
-            onLock={handleLock}
-          />
+          <TopBar dirty={dirty} onSave={handleSave} onLock={handleLock} />
           <VaultPage
             onDirty={() => setDirty(true)}
             onEditEntry={(entry) =>

@@ -12,10 +12,7 @@ export function HomePage({ onOpened, onCreateVault }: HomePageProps) {
       <p>Open a password vault</p>
 
       <OpenVaultForm onOpened={onOpened} />
-      <button
-        type="button"
-        onClick={onCreateVault}
-      >
+      <button type="button" onClick={onCreateVault}>
         Create New Vault
       </button>
     </main>
