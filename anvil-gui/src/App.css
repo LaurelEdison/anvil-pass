@@ -1,16 +1,25 @@
 :root {
-  --primary-color: #3498db;
-  --secondary-color: #2ecc71;
-  --font-stack: "Helvetica Neue", sans-serif;
-  --base-padding: 16px;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
+  /* Base colors */
+  --bg-main: #141519;
+  --bg-sidebar: #1c1d22;
+  --bg-surface: #23252b;
+  --bg-selected: #2d3139;
 
-  --radius: 6px;
-  --border-color: #ccc;
+  /* Action */
+  --accent-primary: #00e676;
+  --accent-secondary: #00b0ff;
+
+  /* Typography */
+  --text-primary: #ffffff;
+  --text-secondary: #8a8f98;
+  --text-dark: #141519;
+  --text-masked: #414652;
+
+  /* Vault states */
+  --status-locked: #ff5252;
+  --status-unlocked: #00e676;
+  --status-unsaved: #ff9100;
 }
-
 .app {
   display: grid;
   grid-template-columns: 200px 300px 1fr;
