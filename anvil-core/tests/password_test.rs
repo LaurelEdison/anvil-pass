@@ -108,6 +108,14 @@ fn test_generator_with_strict() {
     let strict = Generator::new().with_strict(true).strict;
     assert!(strict);
 }
+#[test]
+fn test_generator_with_extended_ascii() {
+    let extended_ascii = Generator::new().with_extended_ascii(false).extended_ascii;
+    assert!(!extended_ascii);
+
+    let extended_ascii = Generator::new().with_extended_ascii(true).extended_ascii;
+    assert!(extended_ascii);
+}
 
 #[test]
 fn test_generator_chaining() {
@@ -444,7 +452,8 @@ fn test_generate_strict_guarantees_at_least_one_of_each() {
         .with_uppercase(true)
         .with_symbols(true)
         .with_spaces(true)
-        .with_strict(true);
+        .with_strict(true)
+        .with_extended_ascii(true);
 
     let password = generator.generate().password;
 
@@ -453,6 +462,11 @@ fn test_generate_strict_guarantees_at_least_one_of_each() {
     assert!(password.chars().any(|c| c.is_ascii_lowercase()));
     assert!(password.chars().any(|c| c.is_ascii_uppercase()));
     assert!(password.chars().any(|c| "!@#$%^&*_-+=,.?".contains(c)));
+    assert!(
+        password
+            .chars()
+            .any(|c| "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝ".contains(c))
+    );
     assert!(password.contains(' '));
 }
 
