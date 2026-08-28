@@ -27,25 +27,35 @@
   background-color: var(--bg-main);
 }
 .create-entry-page {
+  background-color: var(--bg-main);
 }
 .create-vault-page {
+  background-color: var(--bg-main);
 }
 .edit-group-page {
+  background-color: var(--bg-main);
 }
 .vault-page {
+  background-color: var(--bg-main);
 }
 .create-group-page {
+  background-color: var(--bg-main);
 }
 .entry-create {
+  background-color: var(--bg-main);
 }
 .entry-list {
+  background-color: var(--bg-main);
 }
 .delete-confirmation {
+  background-color: var(--bg-main);
 }
 .entry-edit {
+  background-color: var(--bg-main);
 }
 .sidebar {
   background-color: var(--bg-sidebar);
 }
 .home {
+  background-color: var(--bg-main);
 }
