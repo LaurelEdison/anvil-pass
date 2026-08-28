@@ -24,61 +24,28 @@
   display: grid;
   grid-template-columns: 200px 300px 1fr;
   height: 100vh;
+  background-color: var(--bg-main);
 }
-
-.sidebar,
-.entry-list,
-.entry-detail {
-  padding: 16px;
-  overflow: auto;
+.create-entry-page {
 }
-
-.sidebar {
-  border-right: 1px solid #ccc;
+.create-vault-page {
 }
-
+.edit-group-page {
+}
+.vault-page {
+}
+.create-group-page {
+}
+.entry-create {
+}
 .entry-list {
-  border-right: 1px solid #ccc;
 }
-
-.sidebar button,
-.entry-item {
-  display: block;
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 4px;
-  text-align: left;
+.delete-confirmation {
 }
-
-.entry-item span {
-  display: block;
-  font-size: 0.85rem;
+.entry-edit {
 }
-
-.entry-detail > div {
-  margin-bottom: 20px;
+.sidebar {
+  background-color: var(--bg-sidebar);
 }
-
-.entry-detail p {
-  margin-top: 4px;
-}
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.password-generator {
-  width: 400px;
-  padding: 24px;
-  background: white;
-}
-
-.password-generator label {
-  display: block;
-  margin: 8px 0;
+.home {
 }
