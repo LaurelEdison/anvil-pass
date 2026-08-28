@@ -6,7 +6,7 @@ interface TopBarProps {
 
 export function TopBar({ dirty, onSave, onLock }: TopBarProps) {
   return (
-    <header className="top-bar">
+    <nav className="top-bar">
       <strong>Anvil</strong>
 
       <div>
@@ -18,6 +18,6 @@ export function TopBar({ dirty, onSave, onLock }: TopBarProps) {
           Lock
         </button>
       </div>
-    </header>
+    </nav>
   );
 }
