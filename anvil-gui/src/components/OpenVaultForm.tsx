@@ -52,11 +52,11 @@ export function OpenVaultForm({ onOpened }: OpenVaultFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="open-vault-form" onSubmit={handleSubmit}>
       <div>
         <label htmlFor="vault-path">Vault</label>
 
-        <div>
+        <div className="vault-path-input">
           <input
             id="vault-path"
             type="text"
@@ -71,7 +71,7 @@ export function OpenVaultForm({ onOpened }: OpenVaultFormProps) {
         </div>
       </div>
 
-      <div>
+      <div className="form-field">
         <label htmlFor="master-password">Master password</label>
 
         <input
@@ -82,9 +82,13 @@ export function OpenVaultForm({ onOpened }: OpenVaultFormProps) {
         />
       </div>
 
-      {error && <p>{error}</p>}
+      {error && <p className="form-error">{error}</p>}
 
-      <button type="submit" disabled={!path || !masterPassword || loading}>
+      <button
+        className="primary-button"
+        type="submit"
+        disabled={!path || !masterPassword || loading}
+      >
         {loading ? "Opening..." : "Open Vault"}
       </button>
     </form>

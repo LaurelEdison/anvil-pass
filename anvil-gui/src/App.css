@@ -19,188 +19,133 @@
   --status-locked: #ff5252;
   --status-unlocked: #00e676;
   --status-unsaved: #ff9100;
+
+  /* Layout */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
 }
 
-/* inter-100 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 100;
-  src: url("./assets/fonts/inter-v20-latin-100.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-100italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 100;
-  src: url("./assets/fonts/inter-v20-latin-100italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-200 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 200;
-  src: url("./assets/fonts/inter-v20-latin-200.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-200italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 200;
-  src: url("./assets/fonts/inter-v20-latin-200italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-300 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 300;
-  src: url("./assets/fonts/inter-v20-latin-300.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-300italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 300;
-  src: url("./assets/fonts/inter-v20-latin-300italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-regular - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 400;
-  src: url("./assets/fonts/inter-v20-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 400;
-  src: url("./assets/fonts/inter-v20-latin-italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-500 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 500;
-  src: url("./assets/fonts/inter-v20-latin-500.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-500italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 500;
-  src: url("./assets/fonts/inter-v20-latin-500italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-600 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 600;
-  src: url("./assets/fonts/inter-v20-latin-600.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-600italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 600;
-  src: url("./assets/fonts/inter-v20-latin-600italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-700 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 700;
-  src: url("./assets/fonts/inter-v20-latin-700.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-700italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 700;
-  src: url("./assets/fonts/inter-v20-latin-700italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-800 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 800;
-  src: url("./assets/fonts/inter-v20-latin-800.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-800italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 800;
-  src: url("./assets/fonts/inter-v20-latin-800italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-900 - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 900;
-  src: url("./assets/fonts/inter-v20-latin-900.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
-}
-/* inter-900italic - latin */
-@font-face {
-  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 900;
-  src: url("./assets/fonts/inter-v20-latin-900italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+* {
+  box-sizing: border-box;
 }
 
 html,
 body,
 #root {
+  margin: 0;
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+
   background-color: var(--bg-main);
   color: var(--text-primary);
   font-family: "Inter", system-ui, sans-serif;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.app {
-  display: grid;
-  grid-template-columns: 200px 300px 1fr;
-  height: 100vh;
-  background-color: var(--bg-main);
+
+button,
+input {
+  font: inherit;
+}
+
+.open-vault-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+
+  width: 100%;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-field label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  outline: none;
+
+  background-color: var(--bg-surface);
   color: var(--text-primary);
 }
-.create-entry-page {
+
+.form-field input::placeholder {
+  color: var(--text-secondary);
 }
-.create-vault-page {
+
+.form-field input:focus {
+  border-color: var(--accent-secondary);
 }
-.edit-group-page {
+
+.vault-path-input {
+  display: flex;
+  gap: var(--spacing-sm);
 }
-.vault-page {
+
+.vault-path-input input {
+  min-width: 0;
+  flex: 1;
 }
-.create-group-page {
+
+.vault-path-input button {
+  padding: 0.75rem 1rem;
+
+  border: none;
+  border-radius: var(--radius-sm);
+
+  background-color: var(--bg-selected);
+  color: var(--text-primary);
+
+  cursor: pointer;
 }
-.entry-create {
+
+.vault-path-input button:hover {
+  background-color: #383d47;
 }
-.entry-list {
+
+.primary-button {
+  padding: 0.75rem 1rem;
+
+  border: none;
+  border-radius: var(--radius-sm);
+
+  background-color: var(--accent-primary);
+  color: var(--text-dark);
+  font-weight: 600;
+
+  cursor: pointer;
 }
-.delete-confirmation {
+
+.primary-button:hover:not(:disabled) {
+  filter: brightness(1.1);
 }
-.entry-edit {
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
-.sidebar {
-}
-.home {
+
+.form-error {
+  margin: 0;
+  color: var(--status-locked);
+  font-size: 0.875rem;
 }
