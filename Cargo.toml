@@ -3,7 +3,7 @@
 members = [
     "anvil-core",
     "anvil-gui/src-tauri"
-]
+, "anvil-sync"]
 
 resolver = "3"
 
