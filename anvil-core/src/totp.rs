@@ -1,7 +1,7 @@
 use std::time::SystemTime;
 
 use base32::Alphabet;
-use totp_rs::{Algorithm::SHA1, TOTP};
+use totp_rs::{Algorithm::SHA1, Totp};
 
 pub enum Algorithms {
     Sha1,
@@ -13,7 +13,9 @@ pub enum Algorithms {
 pub fn generate_token(secret_string: String) -> String {
     let secret: Vec<u8> = base32::decode(Alphabet::Rfc4648 { padding: false }, &secret_string)
         .expect("Invalid Base32 string");
-    let generator = TOTP::new_unchecked(SHA1, 6, 1, 30, secret);
+    let generator = totp_rs::Builder::new()
+        .with_secret(secret)
+        .build_noncompliant();
 
     let start = SystemTime::now();
 
@@ -21,5 +23,5 @@ pub fn generate_token(secret_string: String) -> String {
         .duration_since(SystemTime::UNIX_EPOCH)
         .expect("Time went backwards")
         .as_secs();
-    generator.generate(time_as_u64)
+    generator.generate(time_as_u64).to_string()
 }
