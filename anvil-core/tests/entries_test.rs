@@ -89,6 +89,33 @@ fn test_add_entry_with_all_fields_with_group() {
 }
 
 #[test]
+fn test_delete_entry() {
+    let (mut vault, _temp_dir, _path, _password) = create_test_vault();
+
+    let group = vault.add_group(NewGroup::new("group")).unwrap();
+    let entry = NewEntry::new("password123")
+        .with_title("Complete Entry")
+        .with_username("complete_user")
+        .with_url("https://complete.com")
+        .with_notes("Complete notes")
+        .with_totp("123456")
+        .with_parent_group(group);
+
+    let id = vault.add_entry(entry).unwrap();
+    assert!(matches!(vault.dirty, true));
+    vault.save(&_password).unwrap();
+    assert!(matches!(vault.dirty, false));
+    vault.delete_entry(id).unwrap();
+    assert!(matches!(vault.dirty, true));
+
+    let result = vault.get_entry(id);
+    assert!(matches!(
+        result,
+        Err(DatabaseProcessingError::FailedToFindEntry(_))
+    ));
+}
+
+#[test]
 fn test_add_entry_with_all_fields_with_err() {
     let (mut vault, _temp_dir, _path, _password) = create_test_vault();
 

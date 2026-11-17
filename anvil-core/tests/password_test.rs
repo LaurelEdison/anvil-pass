@@ -290,6 +290,24 @@ fn test_generate_with_exclude_similar() {
 }
 
 #[test]
+fn test_generate_with_empty_available_chars() {
+    let mut generator = Generator::new();
+    generator
+        .with_length(50)
+        .with_numbers(false)
+        .with_lowercase(false)
+        .with_uppercase(false)
+        .with_extended_ascii(false)
+        .with_spaces(false)
+        .with_symbols(false);
+
+    let password = generator.generate().password;
+    println!("{:?}", password);
+    // Should not contain similar characters
+    assert!(password.is_empty())
+}
+
+#[test]
 fn test_generate_with_exclude_similar_but_no_other_chars() {
     // This tests the edge case where excluding similar characters would empty a charset
     // But since our default charset has more than just similar chars, we need to test
@@ -324,6 +342,21 @@ fn test_generate_strict_ensures_all_types() {
     assert!(has_lower);
     assert!(has_upper);
     assert!(has_symbol);
+}
+
+#[test]
+fn test_generate_strict_mode_returns_zero_remaining_length_when_required_chars_exceed_length() {
+    let mut generator = Generator::new();
+    generator
+        .with_length(2)
+        .with_numbers(true)
+        .with_lowercase(true)
+        .with_uppercase(true)
+        .with_symbols(true)
+        .with_strict(true);
+
+    let password = generator.generate().password;
+    assert_eq!(password.len(), 4);
 }
 
 #[test]
